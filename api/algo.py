@@ -1,15 +1,28 @@
-from sympy import Matrix, eye, sqrt
+from sympy import Matrix, eye, sqrt, latex
 from sympy.physics.quantum import TensorProduct
 from numpy import binary_repr
-import sys
+import sys, urllib
 
 def run_circuit(circuit, input_register, register_size):
     circuit.sort(key=lambda x: x['id'])
-    print(circuit)
     states = run_fragment(circuit, Matrix(input_register), register_size, {})
-    return map(lambda x: {'stateString':format_state(x[0], register_size), 'probabilityString':str(x[1])}, states)
+    return map(lambda x: {'stateString':format_state_string(x[0], register_size), 'stateLatex':format_state_latex(x[0], register_size), 'probabilityString':str(x[1])}, states)
 
-def format_state(state, length):
+def format_state_latex(state, length):
+    base = "http://localhost:4568/qcircuit/"
+    states = []
+    for i in range(len(state)):
+        label = "\\ket{%s}" % binary_repr(i, length)
+        coefficient = "(%s)" % latex(state[i])
+        
+        if state[i] == 1:
+            states.append(label)
+        elif state[i] != 0:
+            states.append(coefficient + label)
+    return base + urllib.quote(" + ".join(states).replace("+ (-", "- (")) + ".svg"
+
+
+def format_state_string(state, length):
     states = []
     for i in range(len(state)):
         label = "|%s>" % binary_repr(i, length)

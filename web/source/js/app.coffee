@@ -81,6 +81,7 @@ run = ->
     states = data['results']
     _.each(states, (state) ->
       console.log(state['stateString'] + " w.p. " + state['probabilityString'])
+      console.log(state['stateLatex'])
     )
   )
 

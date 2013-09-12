@@ -1,0 +1,8 @@
+#!/bin/sh
+cd /tmp
+# Compile the tex into a PDF
+pdflatex -interaction=batchmode "$1.tex" 
+# Crop the PDF to remove any whitespace
+pdfcrop "$1.pdf"
+# Convert the cropped PDF into an SVG
+pdf2svg "$1-crop.pdf" "$1.svg"
