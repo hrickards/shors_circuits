@@ -11,11 +11,12 @@ CONTROLLED_GATES = [{'id': 1, 'name': 'Controlled G', 'symbol': 'G', 'size': 1, 
 # Returns new canvas stage for passed canvas ID
 newStage = (canvasId) ->
   canvasWidth = $('#' + canvasId).width()
-  canvasHeight = 600
+  canvasHeight = $('#' + canvasId).height()
   stage = new Kinetic.Stage
     container: canvasId
     width: canvasWidth
     height: canvasHeight
+  window.stage = stage
 
   return stage
 
@@ -93,7 +94,6 @@ init = ->
 
   @operatorsLayer = newLayer(@stage)
   @operators = new Collection(Operator)
-  newOperator([0], 150, 50, MEASUREMENTS[0])
 
 genHash = ->
   operators = @operators.toHash()
@@ -107,13 +107,34 @@ run = ->
   console.log(genHash())
   $.post('http://localhost:5000', JSON.stringify(genHash())).done((data) ->
     states = data['results']
+    html = "<ul>"
     _.each(states, (state) ->
-      console.log(state['stateString'] + " w.p. " + state['probabilityString'])
-      console.log(state['stateLatex'])
+      html += "<li><img src='" + state['stateLatex'] + "'> w.p. " + state['probabilityString'] + "</li>"
     )
+    html += "</ul>"
+    $("#results").html(html)
   )
 
+resize = ->
+  $("#sidebar").height($("#page").height() - $("#header").height())
+  $("#canvasContainer").height($("#page").height() - $("#header").height())
 
-window.run = run
+  if @stage?
+    canvasWidth = $('#canvasContainer').width()
+    canvasHeight = $('#canvasContainer').height()
+    @stage.setWidth(canvasWidth)
+    @stage.setHeight(canvasHeight)
 
-init()
+$(document).ready ->
+  $(window).resize( ->
+    clearTimeout(@resizeTO) if @resizeTO
+    @resizeTO = setTimeout( ->
+      $(window).trigger('resizeEnd')
+    , 50)
+  )
+
+  $(window).on('resizeEnd orientationchange', resize)
+  $('#run').on('click', run)
+
+  resize()
+  init()

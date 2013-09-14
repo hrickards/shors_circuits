@@ -1,0 +1,54 @@
+@import "compass";
+@import "compass/reset";
+@import "susy";
+
+$total-columns   : 12;
+$column-width    : 4em;
+$gutter-width    : 1em;
+$grid-padding    : $gutter-width;
+$container-style : fluid;
+
+$content-font    : "proxima-nova", sans-serif;
+
+body, html { height: 100%; overflow: hidden; }
+b { font-weight: bold; }
+div, nav { @include box-sizing(border-box); }
+
+#page {
+  @include container;
+  height: 100%;
+  padding: 0;
+
+  font-family: $content-font;
+
+  #header {
+    @include span-columns(12, 12);
+    height: 1.6em;
+    padding: 0.3em;
+
+    background: #4d5e08;
+    color: #999;
+  }
+
+  #sidebar {
+    @include span-columns(3, 12);
+    height: 97%;
+    padding: 0.3em;
+
+    background: #191818;
+    color: #999;
+
+    select {
+      width: 100%;
+    }
+  }
+
+  #content {
+    @include span-columns(9 omega, 12);
+    padding: 0.3em;
+  }
+
+  #canvasContainer {
+    margin-right: 1em;
+  }
+}

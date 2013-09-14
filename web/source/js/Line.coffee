@@ -5,7 +5,7 @@ class Line
     @y = @id * 50 + 50
   y: 0
   startPos: -> return {x: 0, y: @y}
-  endPos: -> return {x: 600, y: @y}
+  endPos: -> return {x: 6000, y: @y}
  
   # Shows the line
   render: (layer, draw) ->
