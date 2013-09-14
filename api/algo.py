@@ -82,7 +82,7 @@ def run_fragment(circuit, input_register, register_size, measurement_outputs):
             
             return all_registers
 
-        elif op['operatorType'] == 'controlled_gate':
+        elif op['operatorType'] == 'controlled':
             gate = find_controlled_gate(op['operatorId'])
             value = measurement_outputs[op['controlInput']]
             value = filter(lambda x: x == value, gate['values'])[0]
@@ -129,10 +129,10 @@ def find_controlled_gate(oid):
 #     {'id': 2, 'operatorType': 'gate', 'operatorId': 2, 'qubits': [0, 1]},
 #     {'id': 3, 'operatorType': 'gate', 'operatorId': 3, 'qubits': [2]},
 #     {'id': 4, 'operatorType': 'measurement', 'operatorId': 1, 'qubits': [0]},
-#     {'id': 5, 'operatorType': 'controlled_gate', 'operatorId': 1, 'qubits': [1], 'controlInput': 4},
-#     {'id': 6, 'operatorType': 'controlled_gate', 'operatorId': 1, 'qubits': [1], 'controlInput': 4},
+#     {'id': 5, 'operatorType': 'controlled', 'operatorId': 1, 'qubits': [1], 'controlInput': 4},
+#     {'id': 6, 'operatorType': 'controlled', 'operatorId': 1, 'qubits': [1], 'controlInput': 4},
 #     {'id': 7, 'operatorType': 'measurement', 'operatorId': 1, 'qubits': [1]},
-#     {'id': 8, 'operatorType': 'controlled_gate', 'operatorId': 1, 'qubits': [2], 'controlInput': 7}
+#     {'id': 8, 'operatorType': 'controlled', 'operatorId': 1, 'qubits': [2], 'controlInput': 7}
 # ]
 # input_register = Matrix([1,0,0,0,0,0,0,0])
 

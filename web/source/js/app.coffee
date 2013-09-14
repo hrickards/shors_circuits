@@ -4,8 +4,9 @@
 //= require Line
 //= require Operator
 
-GATES = [{'id': 1, 'name': 'Hadamard', 'symbol': 'H', 'size': 1}, {'id': 2, 'name': 'CNOT', 'symbol': 'CNOT', 'size': 2}, {'id': 3, 'name': 'Pauli Z', 'symbol': 'Z', 'size': 1}]
-MEASUREMENTS = [{'id': 1, 'name': 'Standard Measurement', 'symbol': 'M', 'size': 1}]
+GATES = [{'id': 1, 'name': 'Hadamard', 'symbol': 'H', 'size': 1, 'type': 'gate'}, {'id': 2, 'name': 'CNOT', 'symbol': 'CNOT', 'size': 2, 'type': 'gate'}, {'id': 3, 'name': 'Pauli Z', 'symbol': 'Z', 'size': 1, 'type': 'gate'}]
+MEASUREMENTS = [{'id': 1, 'name': 'Standard Measurement', 'symbol': 'M', 'size': 1, 'type': 'measurement'}]
+CONTROLLED_GATES = [{'id': 1, 'name': 'Controlled G', 'symbol': 'G', 'size': 1, 'type': 'controlled'}]
 
 # Returns new canvas stage for passed canvas ID
 newStage = (canvasId) ->
@@ -31,6 +32,7 @@ getOperator = ->
 
   operators = GATES
   operators = MEASUREMENTS if operatorType() == 'measurement'
+  operators = CONTROLLED_GATES if operatorType() == 'controlled'
   return _.find(operators, (op) -> op.id == operatorId)
 
 newOperatorClick = =>
@@ -38,13 +40,29 @@ newOperatorClick = =>
   operator = getOperator()
 
   lines = @lines.findClosestByY(mousePos['y'], operator.size)
+  lineIds = _.map(lines, (line) -> line.id)
   # Average of all ys of lines
   y = _.reduce(_.map(lines, (line) -> line.y), ((m, n) -> m + n), 0) / lines.length
-  newOperator(_.map(lines, (line) -> line.id), mousePos['x'], y, operator)
+
+  op = newOperator(lineIds, mousePos['x'], y, operator)
+
+  if operator.type == "controlled"
+    # jquery .one not working in this situation
+    $(@stage.getContent()).off('click.normal');
+    $(@stage.getContent()).on('click.controlled', =>
+      $(@stage.getContent()).off('click.controlled')
+      $(@stage.getContent()).on('click.normal', newOperatorClick)
+
+      newMousePos = @stage.getMousePosition()
+      measurement = @operators.findAllByType('measurement').findClosest(newMousePos['x'], newMousePos['y'])
+      op.measurement = measurement
+      op.renderMeasurementConnection(@operatorsLayer, true)
+    )
 
 newOperator = (lines, x, y, operator) ->
-  op = @operators.new(lines, x, y, operatorType(), operator.id, operator.symbol, operator.size)
-  op.render(operatorsLayer, true)
+  op = @operators.new(lines, x, y, operator.type, operator.id, operator.symbol, operator.size)
+  op.render(@operatorsLayer, true)
+  return op
 
 setupDropdowns = ->
   $('#operatorType').on('change', ->
@@ -55,6 +73,7 @@ setupDropdowns = ->
 changeDropdown = (opType) ->
   operators = GATES
   operators = MEASUREMENTS if opType == 'measurement'
+  operators = CONTROLLED_GATES if operatorType() == 'controlled'
 
   $('#operatorId').empty()
   _.each(operators, (operator) ->
@@ -65,15 +84,16 @@ changeDropdown = (opType) ->
 init = ->
   setupDropdowns()
   @stage = newStage('canvasContainer')
-  $(@stage.getContent()).on('click', newOperatorClick)
+  $(@stage.getContent()).on('click.normal', newOperatorClick)
 
   @linesLayer = newLayer(@stage)
   @lines = new Collection(Line)
-  @lines.add(2)
+  @lines.add(3)
   @lines.render(linesLayer)
 
   @operatorsLayer = newLayer(@stage)
   @operators = new Collection(Operator)
+  newOperator([0], 150, 50, MEASUREMENTS[0])
 
 genHash = ->
   operators = @operators.toHash()
@@ -84,6 +104,7 @@ genHash = ->
   return hash
 
 run = ->
+  console.log(genHash())
   $.post('http://localhost:5000', JSON.stringify(genHash())).done((data) ->
     states = data['results']
     _.each(states, (state) ->
