@@ -1,8 +1,8 @@
 class Operator
-  constructor: (@id, @line, @x, @y, @operatorType, @operatorId, @symbol) ->
+  constructor: (@id, @lines, @x, @y, @operatorType, @operatorId, @symbol, @size) ->
   render: (layer, draw) ->
     width = 50
-    height = 50
+    height = 50 * @size
 
     group = new Kinetic.Group()
     rect = new Kinetic.Rect
@@ -33,6 +33,6 @@ class Operator
     layer.draw() if draw
   toHash: ->
     # Use x as the ID because we want to be sorted in running order
-    return {id: @x, operatorType: @operatorType, operatorId: @operatorId, line: @line}
+    return {id: @x, operatorType: @operatorType, operatorId: @operatorId, lines: @lines}
 
 window.Operator = Operator

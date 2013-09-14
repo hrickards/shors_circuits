@@ -4,8 +4,8 @@
 //= require Line
 //= require Operator
 
-GATES = [{'id': 1, 'name': 'Hadamard', 'symbol': 'H'}, {'id': 2, 'name': 'CNOT', 'symbol': 'CNOT'}, {'id': 3, 'name': 'Pauli Z', 'symbol': 'Z'}]
-MEASUREMENTS = [{'id': 1, 'name': 'Standard Measurement', 'symbol': 'M'}]
+GATES = [{'id': 1, 'name': 'Hadamard', 'symbol': 'H', 'size': 1}, {'id': 2, 'name': 'CNOT', 'symbol': 'CNOT', 'size': 2}, {'id': 3, 'name': 'Pauli Z', 'symbol': 'Z', 'size': 1}]
+MEASUREMENTS = [{'id': 1, 'name': 'Standard Measurement', 'symbol': 'M', 'size': 1}]
 
 # Returns new canvas stage for passed canvas ID
 newStage = (canvasId) ->
@@ -23,20 +23,27 @@ newLayer = (stage) ->
   stage.add(layer)
   return layer
 
-newOperatorClick = =>
-  mousePos = @stage.getMousePosition()
-  line = @lines.findClosestByY(mousePos['y'])
-  newOperator(line.id, mousePos['x'], line.y)
+operatorType = ->
+  return $('#operatorType').val()
 
-newOperator = (lineId, x, y) ->
-  operatorType = $('#operatorType').val()
+getOperator = ->
   operatorId = parseInt($('#operatorId').val())
 
   operators = GATES
-  operators = MEASUREMENTS if operatorType == 'measurement'
-  operator = _.find(operators, (op) -> op.id == operatorId)
+  operators = MEASUREMENTS if operatorType() == 'measurement'
+  return _.find(operators, (op) -> op.id == operatorId)
 
-  op = @operators.new(lineId, x, y, operatorType, operatorId, operator.symbol)
+newOperatorClick = =>
+  mousePos = @stage.getMousePosition()
+  operator = getOperator()
+
+  lines = @lines.findClosestByY(mousePos['y'], operator.size)
+  # Average of all ys of lines
+  y = _.reduce(_.map(lines, (line) -> line.y), ((m, n) -> m + n), 0) / lines.length
+  newOperator(_.map(lines, (line) -> line.id), mousePos['x'], y, operator)
+
+newOperator = (lines, x, y, operator) ->
+  op = @operators.new(lines, x, y, operatorType(), operator.id, operator.symbol, operator.size)
   op.render(operatorsLayer, true)
 
 setupDropdowns = ->
@@ -45,9 +52,9 @@ setupDropdowns = ->
   )
   changeDropdown('gate')
 
-changeDropdown = (operatorType) ->
+changeDropdown = (opType) ->
   operators = GATES
-  operators = MEASUREMENTS if operatorType == 'measurement'
+  operators = MEASUREMENTS if opType == 'measurement'
 
   $('#operatorId').empty()
   _.each(operators, (operator) ->

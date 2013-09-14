@@ -51,7 +51,6 @@ def index():
     json = request.get_json(force=True)
 
     circuit = json['operators']
-    for i in range(len(circuit)): circuit[i]['qubits'] = [circuit[i]['line']]
 
     register_size = json['lines']
     input_register = [1] + [0] * (2 ** register_size - 1)

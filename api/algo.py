@@ -45,22 +45,22 @@ def run_fragment(circuit, input_register, register_size, measurement_outputs):
         if op['operatorType'] == 'gate':
             gate = find_gate(op['operatorId'])
 
-            before = op['qubits'][0]
-            after = register_size - op['qubits'][-1] - 1
+            before = op['lines'][0]
+            after = register_size - op['lines'][-1] - 1
             matrix = TensorProduct(eye(2**before), gate['matrix'], eye(2**after))
 
-            print("Apply gate %s to qubits %s" % (gate['name'], ", ".join(map(str, op['qubits']))))
+            print("Apply gate %s to qubits %s" % (gate['name'], ", ".join(map(str, op['lines']))))
 
             register = matrix * input_register 
 
             return run_fragment(circuit, register, register_size, measurement_outputs)
         elif op['operatorType'] == 'measurement':
             measurement = find_measurement(op['operatorId'])
-            before = op['qubits'][0]
-            after = register_size - op['qubits'][-1] - 1
+            before = op['lines'][0]
+            after = register_size - op['lines'][-1] - 1
             matrix = TensorProduct(eye(2**before), measurement['matrix'], eye(2**after))
 
-            print("Apply measurement %s to qubits %s" % (measurement['name'], ", ".join(map(str, op['qubits']))))
+            print("Apply measurement %s to qubits %s" % (measurement['name'], ", ".join(map(str, op['lines']))))
 
             all_registers = []
 
@@ -88,11 +88,11 @@ def run_fragment(circuit, input_register, register_size, measurement_outputs):
             value = filter(lambda x: x == value, gate['values'])[0]
             smatrix = gate['matrices'][value]
 
-            before = op['qubits'][0]
-            after = register_size - op['qubits'][-1] - 1
+            before = op['lines'][0]
+            after = register_size - op['lines'][-1] - 1
             matrix = TensorProduct(eye(2**before), smatrix, eye(2**after))
 
-            print("Apply controlled gate %s for %.2f to qubits %s" % (gate['name'], value, ", ".join(map(str, op['qubits']))))
+            print("Apply controlled gate %s for %.2f to qubits %s" % (gate['name'], value, ", ".join(map(str, op['lines']))))
 
             register = matrix * input_register 
 
