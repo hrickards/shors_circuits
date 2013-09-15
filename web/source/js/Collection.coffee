@@ -23,6 +23,9 @@ class Collection
       model.render(layer)
     )
     layer.draw()
+  remove: (op) ->
+    index = _.indexOf(@models, op)
+    @models.splice(index, 1)
 
   findClosestByY: (y, size) =>
     size = 1 unless size?

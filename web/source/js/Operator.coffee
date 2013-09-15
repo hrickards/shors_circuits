@@ -2,8 +2,18 @@ class Operator
   constructor: (@id, @lines, @x, @y, @operatorType, @operatorId, @symbol, @size, @measurement) ->
     @width = 50
     @height = 50 * size
+  changePosition: (x, y) ->
+    # setPosition not working, presumably due to 0 width and height on group
+    @group.move(x-@x, y-@y)
+    @x = x
+    @y = y
+    @moveMeasurementConnection() if @measurement?
+  unrender: (layer, draw) ->
+    @group.remove()
+    @unrenderMeasurementConnection() if @measurement?
+    layer.draw() if draw
   render: (layer, draw) ->
-    group = new Kinetic.Group()
+    @group = new Kinetic.Group()
     rect = new Kinetic.Rect
       x: @x
       y: @y
@@ -26,13 +36,26 @@ class Operator
       x: text.getWidth() / 2
       y: text.getHeight() / 2
 
-    @renderMeasurementConnection(layer, draw) if @measurement?
+    @renderMeasurementConnection(layer) if @measurement?
 
-    group.add(rect)
-    group.add(text)
-    layer.add(group)
+    @group.add(rect)
+    @group.add(text)
+    layer.add(@group)
     layer.draw() if draw
+  moveMeasurementConnection: ->
+    @line.setPoints(@calcMeasurementConnectionPoints())
+  unrenderMeasurementConnection: ->
+    @line.remove()
   renderMeasurementConnection: (layer, draw) ->
+    @line = new Kinetic.Line
+      points: @calcMeasurementConnectionPoints()
+      stroke: 'black'
+      strokeWidth: 1.0
+      lineCap: 'round'
+      lineJon: 'round'
+    layer.add(@line)
+    layer.draw() if draw
+  calcMeasurementConnectionPoints: ->
     minX = @x - @width / 2
     maxX = @x + @width / 2
     minY = @y - @height / 2
@@ -49,15 +72,8 @@ class Operator
     startPos = {x: startX, y: startY}
     middlePos = {x: startX, y: endY}
     endPos = {x: endX, y: endY}
+    return [startPos, middlePos, endPos]
 
-    line = new Kinetic.Line
-      points: [startPos, middlePos, endPos]
-      stroke: 'black'
-      strokeWidth: 1.0
-      lineCap: 'round'
-      lineJon: 'round'
-    layer.add(line)
-    layer.draw() if draw
 
   # Operators should have ascending IDs from left to right, but also need to allow for operators
   # with the same x.

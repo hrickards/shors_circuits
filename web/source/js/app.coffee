@@ -36,29 +36,70 @@ getOperator = ->
   operators = CONTROLLED_GATES if operatorType() == 'controlled'
   return _.find(operators, (op) -> op.id == operatorId)
 
-newOperatorClick = =>
+deleteOperatorClick = ->
   mousePos = @stage.getMousePosition()
-  operator = getOperator()
+  op = @operators.findClosest(mousePos['x'], mousePos['y'])
+  op.unrender(@operatorsLayer, true)
+  @operators.remove op
+  console.log(@operators.models)
 
-  lines = @lines.findClosestByY(mousePos['y'], operator.size)
+moveOperatorClick = ->
+  mousePos = @stage.getMousePosition()
+  op = @operators.findClosest(mousePos['x'], mousePos['y'])
+  $(@stage.getContent()).off('click.normal')
+  $(@stage.getContent()).on('mousemove', =>
+    mousePos = @stage.getMousePosition()
+    [lineIds, y] = findLinesY(mousePos['y'], op.size)
+    op.changePosition(mousePos['x'], y)
+    @operatorsLayer.draw()
+  )
+  $(@stage.getContent()).on('click.move', =>
+    $(@stage.getContent()).off('mousemove')
+    $(@stage.getContent()).off('click.move')
+    bindStageClick()
+  )
+
+findLinesY = (y, operatorSize) ->
+  lines = @lines.findClosestByY(y, operatorSize)
   lineIds = _.map(lines, (line) -> line.id)
   # Average of all ys of lines
   y = _.reduce(_.map(lines, (line) -> line.y), ((m, n) -> m + n), 0) / lines.length
 
+  return [lineIds, y]
+
+newOperatorClick = =>
+  mousePos = @stage.getMousePosition()
+  operator = getOperator()
+
+  [lineIds, y] = findLinesY(mousePos['y'], operator.size)
   op = newOperator(lineIds, mousePos['x'], y, operator)
 
   if operator.type == "controlled"
     # jquery .one not working in this situation
-    $(@stage.getContent()).off('click.normal');
+    $(@stage.getContent()).off('click.normal')
     $(@stage.getContent()).on('click.controlled', =>
       $(@stage.getContent()).off('click.controlled')
-      $(@stage.getContent()).on('click.normal', newOperatorClick)
+      bindStageClick()
 
       newMousePos = @stage.getMousePosition()
       measurement = @operators.findAllByType('measurement').findClosest(newMousePos['x'], newMousePos['y'])
       op.measurement = measurement
       op.renderMeasurementConnection(@operatorsLayer, true)
     )
+
+setMode = (mode) ->
+  $("#controlLinks > li > a").removeClass("active")
+  $("#controlLinks > li > #" + mode).addClass("active")
+  @mode = mode
+
+getMode = ->
+  return @mode
+
+stageClick = ->
+  switch getMode()
+    when "add" then newOperatorClick()
+    when "move" then moveOperatorClick()
+    when "delete" then deleteOperatorClick()
 
 newOperator = (lines, x, y, operator) ->
   op = @operators.new(lines, x, y, operator.type, operator.id, operator.symbol, operator.size)
@@ -81,11 +122,22 @@ changeDropdown = (opType) ->
     $('#operatorId').append($("<option></option>").attr("value", operator.id).text(operator.name))
   )
 
+bindStageClick = ->
+  $(@stage.getContent()).on('click.normal', stageClick)
+
+bindLinkClick = ->
+  $('#add').on('click', -> setMode('add'); return false)
+  $('#move').on('click', -> setMode('move'); return false)
+  $('#delete').on('click', -> setMode('delete'); return false)
+  $('#run').on('click', -> run(); return false)
+
 # Initialises the page with a new stage
 init = ->
   setupDropdowns()
+  setMode('add')
   @stage = newStage('canvasContainer')
-  $(@stage.getContent()).on('click.normal', newOperatorClick)
+  bindStageClick()
+  bindLinkClick()
 
   @linesLayer = newLayer(@stage)
   @lines = new Collection(Line)
@@ -134,7 +186,6 @@ $(document).ready ->
   )
 
   $(window).on('resizeEnd orientationchange', resize)
-  $('#run').on('click', run)
 
   resize()
   init()
