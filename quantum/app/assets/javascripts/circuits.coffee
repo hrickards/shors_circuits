@@ -205,7 +205,12 @@ run = ->
     _.each(data['results'], (state) ->
       # CamelCase?
       # html += "<li><img src='" + state['state_latex'] + "'> w.p. " + state['probability_string'] + "</li>"
-      html += "<li>" + state['state_string'] + " w.p. " + state['probability_string'] + "</li>"
+      # html += "<li>" + state['state_string'] + " w.p. " + state['probability_string'] + "</li>"
+      html += "<li>"
+      html += "<img src='/latex/qcircuit/" + state['state_latex'] + ".png?height=30'>"
+      html += " w.p. "
+      html += "<img src='/latex/math/" + state['probability_latex'] + ".png?height=30'>"
+      html += "</li>"
     )
     html += "</ul>"
     $("#results").html(html)

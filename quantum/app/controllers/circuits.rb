@@ -24,7 +24,9 @@ Quantum::App.controllers :circuits do
 
   get :run, :map => '/circuits/:c_id/:v_id/run', :provides => [:json] do
     @circuit = Circuit.find_by_c_id_and_v_id @c_id, @v_id
-    @results = @circuit.run
+    @results = @circuit.run.map do |result|
+      Hash[result.map { |k, v| [k.underscore, v] }]
+    end
 
     {'results' => @results}.to_json
   end

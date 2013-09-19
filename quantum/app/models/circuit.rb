@@ -40,10 +40,7 @@ class Circuit
     }
     output = `lib/quantum_simulation.py #{Shellwords.escape(JSON.generate(input))}`.strip.gsub(/^'|'$/, '')
     @results = JSON.parse(output).map do |result|
-      {
-        state_string: result['stateString'],
-        probability_string: result['probabilityString']
-      }
+      Hash[result.map { |k, v| [k.camelize.camelize(:lower), v] }]
     end
   end
 

@@ -27,7 +27,7 @@ class QuantumSimulation:
     def run_circuit(circuit, input_register, register_size):
         circuit.sort(key=lambda x: x['id'])
         states = QuantumSimulation.run_fragment(circuit, Matrix(input_register), register_size, {})
-        return map(lambda x: {'stateString':QuantumSimulation.format_state_string(x[0], register_size), 'stateLatex':QuantumSimulation.format_state_latex(x[0], register_size), 'probabilityString':str(x[1])}, states)
+        return map(lambda x: {'stateString':QuantumSimulation.format_state_string(x[0], register_size), 'stateLatex':QuantumSimulation.format_state_latex(x[0], register_size), 'probabilityString':str(x[1]), 'probabilityLatex':urllib.quote(latex(x[1]))}, states)
 
     @staticmethod
     def format_state_latex(state, length):
@@ -40,7 +40,7 @@ class QuantumSimulation:
                 states.append(label)
             elif state[i] != 0:
                 states.append(coefficient + label)
-        return urllib.quote(" + ".join(states).replace("+ (-", "- (")) + ".svg"
+        return urllib.quote(" + ".join(states).replace("+ (-", "- ("))
 
     @staticmethod
     def format_state_string(state, length):
