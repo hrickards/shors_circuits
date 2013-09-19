@@ -8,6 +8,8 @@ class Operator
     @x = x
     @y = y
     @moveMeasurementConnection() if @measurement?
+  changeLines: (lines) ->
+    @lines = lines
   unrender: (layer, draw) ->
     @group.remove()
     @unrenderMeasurementConnection() if @measurement?

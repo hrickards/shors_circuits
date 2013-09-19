@@ -51,6 +51,7 @@ moveOperatorClick = ->
     mousePos = @stage.getMousePosition()
     [lineIds, y] = findLinesY(mousePos['y'], op.size)
     op.changePosition(mousePos['x'], y)
+    op.changeLines(lineIds)
     @operatorsLayer.draw()
   )
   $(@stage.getContent()).on('click.move', =>
