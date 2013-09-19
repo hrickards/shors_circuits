@@ -41,8 +41,7 @@ getOperatorByIdType = (id, type) ->
 deleteOperatorClick = ->
   mousePos = @stage.getMousePosition()
   op = @operators.findClosest(mousePos['x'], mousePos['y'])
-  op.unrender(@operatorsLayer, true)
-  @operators.remove op
+  @operators.remove op, @operatorsLayer, true
 
 moveOperatorClick = ->
   mousePos = @stage.getMousePosition()
@@ -126,12 +125,25 @@ changeDropdown = (opType) ->
 bindStageClick = ->
   $(@stage.getContent()).on('click.normal', stageClick)
 
+addLine = ->
+  line = @lines.new()
+  line.render(@linesLayer, true)
+
+deleteLine = ->
+  line = @lines.removeLast @linesLayer, true
+  return unless line?
+  @operators.removeWhere((op) ->
+    return _.contains(op.lines, line.id)
+  , @operatorsLayer, true)
+
 bindLinkClick = ->
   $('#add').on('click', -> setMode('add'); return false)
   $('#move').on('click', -> setMode('move'); return false)
   $('#delete').on('click', -> setMode('delete'); return false)
   $('#run').on('click', -> run(); return false)
   $('#save').on('click', -> save(); return false)
+  $('#addLine').on('click', -> addLine(); return false)
+  $('#deleteLine').on('click', -> deleteLine(); return false)
 
 # Initialises the page with a new stage
 init = ->

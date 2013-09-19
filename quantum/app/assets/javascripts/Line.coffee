@@ -9,13 +9,16 @@ class Line
  
   # Shows the line
   render: (layer, draw) ->
-    line = new Kinetic.Line
+    @line = new Kinetic.Line
       points: [@startPos(), @endPos()]
       stroke: 'black'
       strokeWidth: 1.5
       lineCap: 'round'
       lineJoin: 'round'
-    layer.add(line)
+    layer.add(@line)
+    layer.draw() if draw
+  unrender: (layer, draw) ->
+    @line.remove()
     layer.draw() if draw
 
 window.Line = Line

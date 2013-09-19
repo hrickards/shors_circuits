@@ -29,9 +29,19 @@ class Collection
       model.render(layer)
     )
     layer.draw()
-  remove: (op) ->
-    index = _.indexOf(@models, op)
+  remove: (model, layer, draw) ->
+    index = _.indexOf(@models, model)
+    @models[index].unrender(layer, draw)
     @models.splice(index, 1)
+  removeLast: (layer, draw) ->
+    model = @models.pop()
+    model.unrender(layer, draw)
+    return model
+  removeWhere: (func, layer, draw) ->
+    _.each(_.filter(@models, func), (model) =>
+      @remove(model, layer, false)
+    )
+    layer.draw() if draw
 
   findClosestByY: (y, size) =>
     size = 1 unless size?
