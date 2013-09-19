@@ -147,7 +147,18 @@ init = ->
   @operatorsLayer = newLayer(@stage)
   @operators = new Collection(Operator)
 
-  loadCircuit()
+  if existingCircuit()
+    loadCircuit()
+  else
+    setupNewCircuit()
+
+setupNewCircuit = ->
+  @lines.add(3)
+  @lines.render(@linesLayer)
+
+existingCircuit = ->
+  parts = window.location.pathname.split(".")[0].split("/")
+  return parts[parts.length - 3] == "circuits"
 
 dataPath = (infix) ->
   infix = "" unless infix?
@@ -155,12 +166,12 @@ dataPath = (infix) ->
   return basePath + infix + ".json"
 
 loadCircuit = ->
-  basePath = window.location.pathname.split(".")[0]
   $.get(dataPath()).done((data) =>
     renderCircuit(data['circuit'])
   )
 
 renderCircuit = (circuit) =>
+  $('#save').text('Update')
   @lines.add(circuit['lines'])
   @lines.render(linesLayer)
 
@@ -193,14 +204,15 @@ save = ->
     type: 'PUT'
     data: {circuit: JSON.stringify(genHash())}
   ).done((data) ->
-    console.log(data['status'])
+    window.location.href = data['url'] if data['status'] == 'successful'
   )
   # $.post('http://localhost:5000/save', JSON.stringify(genHash())).done((data) ->
   # console.log(data['status'])
   # )
 
 run = ->
-  $.get(dataPath('/run')).done((data) ->
+  # TODO Is this RESTul?
+  $.post('/circuits/run', {circuit: JSON.stringify(genHash())}).done((data) ->
     html = "<ul>"
     _.each(data['results'], (state) ->
       # CamelCase?

@@ -47,4 +47,12 @@ class Circuit
   def results
     @results
   end
+
+  def self.new_v_id(c_id)
+    (self.find_all_by_c_id(c_id).map { |doc| doc.v_id }.max || 0) + 1
+  end
+
+  def self.new_c_id
+    (self.all.map { |doc| doc.c_id }.max || 0) + 1
+  end
 end
