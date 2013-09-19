@@ -1,0 +1,9 @@
+---
+:orm: mongomapper
+:test: none
+:mock: none
+:script: jquery
+:renderer: slim
+:stylesheet: compass
+:namespace: Quantum
+:migration_format: number
