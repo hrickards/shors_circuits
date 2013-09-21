@@ -1,3 +1,3 @@
 object @circuit
 
-attributes :operators, :lines
+attributes :operators, :lines, :initial_state

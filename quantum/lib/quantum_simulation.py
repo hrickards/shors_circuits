@@ -2,9 +2,10 @@
 from sympy import Matrix, eye, sqrt, latex
 from sympy.physics.quantum import TensorProduct
 from numpy import binary_repr
+from sympy.parsing.sympy_parser import parse_expr
 import pipes
 import json
-import sys, urllib
+import sys, urllib, re
 
 GATES = [
     {'id': 1, 'name': 'Hadamard', 'matrix': 1/sqrt(2) * Matrix([[1,1],[1,-1]])},
@@ -27,11 +28,13 @@ class QuantumSimulation:
         self.register_size = register_size
 
     def run_circuit(self, circuit, input_register):
+        input_register = self.parse_ket_string(input_register)
+
         self.states = {-1: [[input_register, 1]]}
         circuit.sort(key=lambda x: x['id'])
         self.circuit = list(circuit)
 
-        results = self.run_fragment(circuit, [(Matrix(input_register), 1, {})])
+        results = self.run_fragment(circuit, [(input_register, 1, {})])
         results = {self.get_oid(i): map(self.format_state, states) for i, states in enumerate(results)}
         return results
 
@@ -46,11 +49,28 @@ class QuantumSimulation:
         probability = stateArray[1]
 
         return {
-                'stateString': self.format_state_string(state),
-                'stateLatex': self.format_state_latex(state),
-                'probabilityString': str(probability),
-                'probabilityLatex': urllib.quote(latex(probability))
+                'state_string': self.format_state_string(state),
+                'state_latex': self.format_state_latex(state),
+                'probability_string': str(probability),
+                'probability_latex': urllib.quote(latex(probability))
                 }
+
+    def parse_ket_string(self, kets):
+        # [['(1/sqrt(2)', '|00>'], ['- (1/sqrt(2)', '|11>']]
+        kets = filter(lambda x: len(x) > 0, map(lambda x: x.strip(), re.split("(\|\d+>)", kets)))
+        zero_array = [0] * (2 ** self.register_size)
+
+        coeff = ""
+        for el in kets:
+            match = re.match("\|(\d+)>", el)
+            if match == None:
+                coeff = el
+            else:
+                if coeff == "" or coeff == "-" or coeff == "+": coeff += "1"
+                pcoeff = parse_expr(coeff)
+                zero_array[int(match.groups(0)[0], 2)] += pcoeff
+                coeff = ""
+        return Matrix(zero_array)
 
     def format_state_latex(self, state):
         states = []
@@ -88,7 +108,7 @@ class QuantumSimulation:
 
             states = []
             for (input_register, probability, moutputs) in input_states:
-                nstates = new_register_functions[op['operatorType']](op, input_register, moutputs)
+                nstates = new_register_functions[op['operator_type']](op, input_register, moutputs)
                 for i in range(len(nstates)):
                     nstate = list(nstates[i])
                     nstate[1] *= probability
@@ -104,7 +124,7 @@ class QuantumSimulation:
             return new_statess
 
     def apply_gate(self, op, input_register, moutputs):
-        gate = self.find_gate(op['operatorId'])
+        gate = self.find_gate(op['operator_id'])
 
         before = op['lines'][0]
         after = self.register_size - op['lines'][-1] - 1
@@ -113,7 +133,7 @@ class QuantumSimulation:
         return [(matrix * input_register, 1, moutputs)]
 
     def apply_measurement(self, op, input_register, moutputs):
-        measurement = self.find_measurement(op['operatorId'])
+        measurement = self.find_measurement(op['operator_id'])
 
         before = op['lines'][0]
         after = self.register_size - op['lines'][-1] - 1
@@ -136,8 +156,8 @@ class QuantumSimulation:
         return states
             
     def apply_controlled(self, op, input_register, moutputs):
-        gate = self.find_controlled_gate(op['operatorId'])
-        value = moutputs[op['measurementId']]
+        gate = self.find_controlled_gate(op['operator_id'])
+        value = moutputs[op['measurement_id']]
         value = filter(lambda x: x == value, gate['values'])[0]
         smatrix = gate['matrices'][value]
 

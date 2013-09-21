@@ -46,14 +46,22 @@ Quantum::App.controllers :circuits do
   end
 
   post :run, :map => '/circuits/run', :provides => [:json] do
-    circuit = JSON.parse params["circuit"]
+    circuit = JSON.parse(params["circuit"])
 
     @circuit = Circuit.new
     @circuit.operators = circuit["operators"]
     @circuit.lines = circuit["lines"]
+    @circuit.initial_state = circuit["initial_state"]
 
     @results = @circuit.run
 
     {'results' => @results}.to_json
+  end
+
+  get :run, :map => '/circuits/:c_id/:v_id/run', :provides => [:json] do
+    @circuit = Circuit.find_by_c_id_and_v_id @c_id, @v_id
+    @results = @circuit.run
+
+    @results.to_json
   end
 end

@@ -6,6 +6,7 @@ class Circuit
   # key <name>, <type>
   key :operators, Array
   key :lines, Integer
+  key :initial_state, String
 
   key :c_id, Integer
   key :v_id, Integer
@@ -30,13 +31,10 @@ class Circuit
       op
     end
 
-    register_size = @lines
-    input_register = [1] + [0] * (2 ** register_size - 1)
-
     input = {
       circuit: circuit,
-      register_size: register_size,
-      input_register: input_register
+      register_size: @lines,
+      input_register: @initial_state
     }
     output = `lib/quantum_simulation.py #{Shellwords.escape(JSON.generate(input))}`.strip.gsub(/^'|'$/, '')
     JSON.parse output

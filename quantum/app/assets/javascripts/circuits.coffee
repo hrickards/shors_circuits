@@ -85,9 +85,9 @@ showResults = (oId) ->
   
   _.each(results, (state) ->
     html += "<li>"
-    html += "<img src='/latex/qcircuit/" + state['stateLatex'] + ".png?height=30'>"
+    html += "<img src='/latex/qcircuit/" + state['state_latex'] + ".png?height=30'>"
     html += " w.p. "
-    html += "<img src='/latex/math/" + state['probabilityLatex'] + ".png?height=30'>"
+    html += "<img src='/latex/math/" + state['probability_latex'] + ".png?height=30'>"
     html += "</li>"
   )
   html += "</ul>"
@@ -118,7 +118,6 @@ setMode = (mode) ->
   $("#controlLinks > li > a").removeClass("active")
   $("#controlLinks > li > #" + mode).addClass("active")
   @mode = mode
-  run() if mode == "run"
 
 getMode = ->
   return @mode
@@ -169,7 +168,7 @@ bindLinkClick = ->
   $('#add').on('click', -> setMode('add'); return false)
   $('#move').on('click', -> setMode('move'); return false)
   $('#delete').on('click', -> setMode('delete'); return false)
-  $('#run').on('click', -> setMode('run'); return false)
+  $('#run').on('click', -> run(); setMode('run'); return false)
   $('#save').on('click', -> save(); return false)
   $('#addLine').on('click', -> addLine(); return false)
   $('#deleteLine').on('click', -> deleteLine(); return false)
@@ -213,21 +212,23 @@ loadCircuit = ->
 
 renderCircuit = (circuit) =>
   $('#save').text('Update')
+  $('#initialState').val(circuit['initial_state'])
+
   @lines.add(circuit['lines'])
   @lines.render(linesLayer)
 
   # We need to add controlled gates seperately
-  otherOps = _.reject(circuit['operators'], (h) -> h['operatorType'] == 'controlled')
-  controlledOps = _.filter(circuit['operators'], (h) -> h['operatorType'] == 'controlled')
+  otherOps = _.reject(circuit['operators'], (h) -> h['operator_type'] == 'controlled')
+  controlledOps = _.filter(circuit['operators'], (h) -> h['operator_type'] == 'controlled')
 
   @operators.addFromArrays(_.map(otherOps, (h) ->
-    op = getOperatorByIdType(h['operatorId'], h['operatorType'])
-    return [h['id'], h['lines'], h['x'], h['y'], h['operatorType'], h['operatorId'], op.symbol, op.size]
+    op = getOperatorByIdType(h['operator_id'], h['operator_type'])
+    return [h['id'], h['lines'], h['x'], h['y'], h['operator_type'], h['operator_id'], op.symbol, op.size]
   ))
   @operators.addFromArrays(_.map(controlledOps, (h) ->
-    op = getOperatorByIdType(h['operatorId'], h['operatorType'])
-    measurement = @operators.findAllByType('measurement').findById(h['measurementId'])
-    return [h['id'], h['lines'], h['x'], h['y'], h['operatorType'], h['operatorId'], op.symbol, op.size, measurement]
+    op = getOperatorByIdType(h['operator_id'], h['operator_type'])
+    measurement = @operators.findAllByType('measurement').findById(h['measurement_id'])
+    return [h['id'], h['lines'], h['x'], h['y'], h['operator_type'], h['operator_id'], op.symbol, op.size, measurement]
   ))
   @operators.render(@operatorsLayer)
 
@@ -236,6 +237,7 @@ genHash = ->
   hash = {
     operators: operators
     lines: @lines.count()
+    initial_state: $('#initialState').val()
   }
   return hash
 

@@ -84,8 +84,8 @@ class Operator
   # return parseInt(padNumber(@x, 4) + padNumber(@id, 3))
   
   toHash: ->
-    hash = {id: @id, lines: @lines, x: @x, y: @y, operatorType: @operatorType, operatorId: @operatorId}
-    hash['measurementId'] = @measurement.id if @measurement?
+    hash = {id: @id, lines: @lines, x: @x, y: @y, operator_type: @operatorType, operator_id: @operatorId}
+    hash['measurement_id'] = @measurement.id if @measurement?
     return hash
 
   # toHash: ->
