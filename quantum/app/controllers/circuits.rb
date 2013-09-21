@@ -52,9 +52,7 @@ Quantum::App.controllers :circuits do
     @circuit.operators = circuit["operators"]
     @circuit.lines = circuit["lines"]
 
-    @results = @circuit.run.map do |result|
-      Hash[result.map { |k, v| [k.underscore, v] }]
-    end
+    @results = @circuit.run
 
     {'results' => @results}.to_json
   end

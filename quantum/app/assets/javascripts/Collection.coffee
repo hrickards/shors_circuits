@@ -49,10 +49,15 @@ class Collection
   findAllByType: (type) =>
     return new Collection(@model, _.filter(@models, (model) -> model.operatorType == type))
   findClosest: (x, y) =>
-    window.models = @models
     return _.sortBy(@models, (model) -> Math.pow((model.x - x), 2) + Math.pow((model.y - y), 2))[0]
+  findClosestByX: (x) =>
+    return _.sortBy(@models, (model) -> Math.abs(model.x - x))[0]
   findById: (id) =>
     return _.find(@models, (model) -> model.id == id)
+  leftOf: (x) =>
+    return new Collection(@model, _.filter(@models, (model) -> model.x <= x))
+  onLine: (line) =>
+    return new Collection(@model, _.filter(@models, (model) -> _.contains(model.lines, line)))
 
   toHash: ->
     return _.map(@models, (model) -> return model.toHash())

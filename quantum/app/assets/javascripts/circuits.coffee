@@ -68,6 +68,32 @@ findLinesY = (y, operatorSize) ->
 
   return [lineIds, y]
 
+inspectClick = ->
+  mousePos = @stage.getMousePosition()
+
+  op = @operators.leftOf(mousePos['x']).findClosestByX(mousePos['x'])
+  oId = -1
+  oId = op.id if op?
+
+  showResults(oId)
+
+  # o = after operator o
+
+showResults = (oId) ->
+  results = @resultsData[oId]
+  html = "<ul>"
+  
+  _.each(results, (state) ->
+    html += "<li>"
+    html += "<img src='/latex/qcircuit/" + state['stateLatex'] + ".png?height=30'>"
+    html += " w.p. "
+    html += "<img src='/latex/math/" + state['probabilityLatex'] + ".png?height=30'>"
+    html += "</li>"
+  )
+  html += "</ul>"
+  $("#results").html(html)
+
+
 newOperatorClick = =>
   mousePos = @stage.getMousePosition()
   operator = getOperator()
@@ -92,6 +118,7 @@ setMode = (mode) ->
   $("#controlLinks > li > a").removeClass("active")
   $("#controlLinks > li > #" + mode).addClass("active")
   @mode = mode
+  run() if mode == "run"
 
 getMode = ->
   return @mode
@@ -101,6 +128,7 @@ stageClick = ->
     when "add" then newOperatorClick()
     when "move" then moveOperatorClick()
     when "delete" then deleteOperatorClick()
+    when "run" then inspectClick()
 
 newOperator = (lines, x, y, operator) ->
   op = @operators.new(lines, x, y, operator.type, operator.id, operator.symbol, operator.size)
@@ -141,7 +169,7 @@ bindLinkClick = ->
   $('#add').on('click', -> setMode('add'); return false)
   $('#move').on('click', -> setMode('move'); return false)
   $('#delete').on('click', -> setMode('delete'); return false)
-  $('#run').on('click', -> run(); return false)
+  $('#run').on('click', -> setMode('run'); return false)
   $('#save').on('click', -> save(); return false)
   $('#addLine').on('click', -> addLine(); return false)
   $('#deleteLine').on('click', -> deleteLine(); return false)
@@ -225,20 +253,22 @@ save = ->
 
 run = ->
   # TODO Is this RESTul?
-  $.post('/circuits/run', {circuit: JSON.stringify(genHash())}).done((data) ->
-    html = "<ul>"
-    _.each(data['results'], (state) ->
-      # CamelCase?
-      # html += "<li><img src='" + state['state_latex'] + "'> w.p. " + state['probability_string'] + "</li>"
-      # html += "<li>" + state['state_string'] + " w.p. " + state['probability_string'] + "</li>"
-      html += "<li>"
-      html += "<img src='/latex/qcircuit/" + state['state_latex'] + ".png?height=30'>"
-      html += " w.p. "
-      html += "<img src='/latex/math/" + state['probability_latex'] + ".png?height=30'>"
-      html += "</li>"
-    )
-    html += "</ul>"
-    $("#results").html(html)
+  $.post('/circuits/run', {circuit: JSON.stringify(genHash())}).done((data) =>
+    @resultsData = data['results']
+    #     html = "<ul>"
+    # 
+    #     _.each(data['results'], (state) ->
+    #       # CamelCase?
+    #       # html += "<li><img src='" + state['state_latex'] + "'> w.p. " + state['probability_string'] + "</li>"
+    #       # html += "<li>" + state['state_string'] + " w.p. " + state['probability_string'] + "</li>"
+    #       html += "<li>"
+    #       html += "<img src='/latex/qcircuit/" + state['state_latex'] + ".png?height=30'>"
+    #       html += " w.p. "
+    #       html += "<img src='/latex/math/" + state['probability_latex'] + ".png?height=30'>"
+    #       html += "</li>"
+    #     )
+    #     html += "</ul>"
+    #     $("#results").html(html)
   )
 
 resize = ->
