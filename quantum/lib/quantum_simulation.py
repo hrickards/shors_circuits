@@ -23,17 +23,39 @@ CONTROLLED_GATES = [
 
 # TODO Clean this up, rather than bunging a staticmethod onto everything
 class QuantumSimulation:
-    @staticmethod
-    def run_circuit(circuit, input_register, register_size):
-        circuit.sort(key=lambda x: x['id'])
-        states = QuantumSimulation.run_fragment(circuit, Matrix(input_register), register_size, {})
-        return map(lambda x: {'stateString':QuantumSimulation.format_state_string(x[0], register_size), 'stateLatex':QuantumSimulation.format_state_latex(x[0], register_size), 'probabilityString':str(x[1]), 'probabilityLatex':urllib.quote(latex(x[1]))}, states)
+    def __init__(self, register_size):
+        self.register_size = register_size
 
-    @staticmethod
-    def format_state_latex(state, length):
+    def run_circuit(self, circuit, input_register):
+        self.states = {-1: [[input_register, 1]]}
+        circuit.sort(key=lambda x: x['id'])
+        self.circuit = list(circuit)
+
+        results = self.run_fragment(circuit, [(Matrix(input_register), 1, {})])
+        results = {self.get_oid(i): map(self.format_state, states) for i, states in enumerate(results)}
+        return results
+
+    def get_oid(self, i):
+        if i < 1:
+            return -1
+        else:
+            return self.circuit[i-1]["oid"]
+
+    def format_state(self, stateArray):
+        state = stateArray[0]
+        probability = stateArray[1]
+
+        return {
+                'stateString': self.format_state_string(state),
+                'stateLatex': self.format_state_latex(state),
+                'probabilityString': str(probability),
+                'probabilityLatex': urllib.quote(latex(probability))
+                }
+
+    def format_state_latex(self, state):
         states = []
         for i in range(len(state)):
-            label = "\\ket{%s}" % binary_repr(i, length)
+            label = "\\ket{%s}" % binary_repr(i, self.register_size)
             coefficient = "(%s)" % latex(state[i])
             
             if state[i] == 1:
@@ -42,11 +64,10 @@ class QuantumSimulation:
                 states.append(coefficient + label)
         return urllib.quote(" + ".join(states).replace("+ (-", "- ("))
 
-    @staticmethod
-    def format_state_string(state, length):
+    def format_state_string(self, state):
         states = []
         for i in range(len(state)):
-            label = "|%s>" % binary_repr(i, length)
+            label = "|%s>" % binary_repr(i, self.register_size)
             coefficient = "(%s)" % str(state[i])
             
             if state[i] == 1:
@@ -55,102 +76,91 @@ class QuantumSimulation:
                 states.append(coefficient + label)
         return " + ".join(states).replace("+ (-", "- (")
 
-    @staticmethod
-    def run_fragment(circuit, input_register, register_size, measurement_outputs):
+    def run_fragment(self, circuit, input_states):
         if len(circuit) == 0:
-            return [[input_register, 1]]
+            return [input_states]
         else:
             circuit = list(circuit)
+
             op = circuit.pop(0)
 
-            if op['operatorType'] == 'gate':
-                gate = QuantumSimulation.find_gate(op['operatorId'])
+            new_register_functions = {'gate': self.apply_gate, 'measurement': self.apply_measurement, 'controlled': self.apply_controlled}
 
-                before = op['lines'][0]
-                after = register_size - op['lines'][-1] - 1
-                matrix = TensorProduct(eye(2**before), gate['matrix'], eye(2**after))
+            states = []
+            for (input_register, probability, moutputs) in input_states:
+                nstates = new_register_functions[op['operatorType']](op, input_register, moutputs)
+                for i in range(len(nstates)):
+                    nstate = list(nstates[i])
+                    nstate[1] *= probability
+                    nstates[i] = tuple(nstate)
+                states += nstates
 
-                register = matrix * input_register 
+            new_statess = self.run_fragment(circuit, states)
 
-                return QuantumSimulation.run_fragment(circuit, register, register_size, measurement_outputs)
-            elif op['operatorType'] == 'measurement':
-                measurement = QuantumSimulation.find_measurement(op['operatorId'])
-                before = op['lines'][0]
-                after = register_size - op['lines'][-1] - 1
-                matrix = TensorProduct(eye(2**before), measurement['matrix'], eye(2**after))
+            for i in range(len(new_statess[0])): new_statess[0][i] = new_statess[0][i][0:2]
 
-                all_registers = []
+            new_statess.insert(0, input_states)
+            
+            return new_statess
 
-                for val, dup, vecs in matrix.eigenvects():
-                    for vec in vecs:
-                        p = vec * vec.T
-                        probability = (input_register.T * p * input_register)[0]
-                        if probability == 0: continue
-                        register = p * input_register / sqrt(probability)
+    def apply_gate(self, op, input_register, moutputs):
+        gate = self.find_gate(op['operatorId'])
 
-                        measurement_outputs = dict(measurement_outputs)
-                        measurement_outputs[op['id']] = val
+        before = op['lines'][0]
+        after = self.register_size - op['lines'][-1] - 1
+        matrix = TensorProduct(eye(2**before), gate['matrix'], eye(2**after))
 
-                        registers = QuantumSimulation.run_fragment(circuit, register, register_size, measurement_outputs)
-                        for i in range(len(registers)):
-                            registers[i][-1] = registers[i][-1] * probability
+        return [(matrix * input_register, 1, moutputs)]
 
-                        all_registers += registers
-                
-                return all_registers
+    def apply_measurement(self, op, input_register, moutputs):
+        measurement = self.find_measurement(op['operatorId'])
 
-            elif op['operatorType'] == 'controlled':
-                gate = QuantumSimulation.find_controlled_gate(op['operatorId'])
-                value = measurement_outputs[op['measurementId']]
-                value = filter(lambda x: x == value, gate['values'])[0]
-                smatrix = gate['matrices'][value]
+        before = op['lines'][0]
+        after = self.register_size - op['lines'][-1] - 1
+        matrix = TensorProduct(eye(2**before), measurement['matrix'], eye(2**after))
 
-                before = op['lines'][0]
-                after = register_size - op['lines'][-1] - 1
-                matrix = TensorProduct(eye(2**before), smatrix, eye(2**after))
+        states = []
 
-                register = matrix * input_register 
+        for val, dup, vecs in matrix.eigenvects():
+            for vec in vecs:
+                p = vec * vec.T
+                probability = (input_register.T * p * input_register)[0]
+                if probability == 0: continue
+                register = p * input_register / sqrt(probability)
 
-                return QuantumSimulation.run_fragment(circuit, register, register_size, measurement_outputs)
-            else:
-                raise Exception("Error: unknown operator %s" % str(op))
+                moutputs = dict(moutputs)
+                moutputs[op['oid']] = val
 
-    @staticmethod
-    def find_gate(oid):
+                state = (register, probability, moutputs)
+                states.append(state)
+        return states
+            
+    def apply_controlled(self, op, input_register, moutputs):
+        gate = self.find_controlled_gate(op['operatorId'])
+        value = moutputs[op['measurementId']]
+        value = filter(lambda x: x == value, gate['values'])[0]
+        smatrix = gate['matrices'][value]
+
+        before = op['lines'][0]
+        after = self.register_size - op['lines'][-1] - 1
+        matrix = TensorProduct(eye(2**before), smatrix, eye(2**after))
+
+        return ([(matrix * input_register, 1, moutputs)])
+
+        #                 registers = self.run_fragment(circuit, register, measurement_outputs) #                 for i in range(len(registers)): registers[i][-1] = registers[i][-1] * probability
+    def find_gate(self, oid):
         return filter(lambda o: o['id'] == oid, GATES)[0]
 
-    @staticmethod
-    def find_measurement(oid):
+    def find_measurement(self, oid):
         return filter(lambda o: o['id'] == oid, MEASUREMENTS)[0]
 
-    @staticmethod
-    def find_controlled_gate(oid):
+    def find_controlled_gate(self, oid):
         return filter(lambda o: o['id'] == oid, CONTROLLED_GATES)[0]
 
-# circuit = [
-#     {'id': 1, 'operatorType': 'gate', 'operatorId': 1, 'qubits': [0]},
-#     {'id': 2, 'operatorType': 'gate', 'operatorId': 2, 'qubits': [0, 1]},
-#     {'id': 3, 'operatorType': 'gate', 'operatorId': 3, 'qubits': [2]},
-#     {'id': 4, 'operatorType': 'measurement', 'operatorId': 1, 'qubits': [0]},
-#     {'id': 5, 'operatorType': 'controlled', 'operatorId': 1, 'qubits': [1], 'controlInput': 4},
-#     {'id': 6, 'operatorType': 'controlled', 'operatorId': 1, 'qubits': [1], 'controlInput': 4},
-#     {'id': 7, 'operatorType': 'measurement', 'operatorId': 1, 'qubits': [1]},
-#     {'id': 8, 'operatorType': 'controlled', 'operatorId': 1, 'qubits': [2], 'controlInput': 7}
-# ]
-# input_register = Matrix([1,0,0,0,0,0,0,0])
+if __name__ == "__main__":
+    data = json.loads(sys.argv[1])
 
-# circuit = [
-    # {'id': 1, 'operatorType': 'gate', 'operatorId': 2, 'qubits': [0,1]},
-    # {'id': 2, 'operatorType': 'gate', 'operatorId': 1, 'qubits': [0]},
-    # {'id': 3, 'operatorType': 'measurement', 'operatorId': 1, 'qubits': [0]}
-# ]
-# input_register = Matrix([1,0,0,0])
-# register_size = 2
+    sim = QuantumSimulation(data['register_size'])
+    results = sim.run_circuit(data['circuit'], data['input_register'])
 
-# print(run_fragment(circuit, input_register, 2, {}))
-# print QuantumSimulation.run_circuit([], [1,0,0,0] ,2)
-
-data = json.loads(sys.argv[1])
-results = QuantumSimulation.run_circuit(data['circuit'], data['input_register'], data['register_size'])
-
-print pipes.quote(json.dumps(results))
+    print pipes.quote(json.dumps(results))
