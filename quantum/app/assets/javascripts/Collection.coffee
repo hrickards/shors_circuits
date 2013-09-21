@@ -54,6 +54,8 @@ class Collection
     return _.sortBy(@models, (model) -> Math.abs(model.x - x))[0]
   findById: (id) =>
     return _.find(@models, (model) -> model.id == id)
+  filter: (func) =>
+    return _.filter(@models, func)
   leftOf: (x) =>
     return new Collection(@model, _.filter(@models, (model) -> model.x <= x))
   onLine: (line) =>

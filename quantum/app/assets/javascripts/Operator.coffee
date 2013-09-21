@@ -44,15 +44,16 @@ class Operator
     @group.add(text)
     layer.add(@group)
     layer.draw() if draw
-  moveMeasurementConnection: ->
+  moveMeasurementConnection: (layer, draw) ->
     @line.setPoints(@calcMeasurementConnectionPoints())
+    layer.draw() if draw
   unrenderMeasurementConnection: ->
     @line.remove()
   renderMeasurementConnection: (layer, draw) ->
     @line = new Kinetic.Line
       points: @calcMeasurementConnectionPoints()
-      stroke: 'black'
-      strokeWidth: 1.0
+      stroke: '#000'
+      strokeWidth: 2.0
       lineCap: 'round'
       lineJon: 'round'
     layer.add(@line)

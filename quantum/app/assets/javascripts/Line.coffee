@@ -11,7 +11,7 @@ class Line
   render: (layer, draw) ->
     @line = new Kinetic.Line
       points: [@startPos(), @endPos()]
-      stroke: 'black'
+      stroke: '#bbb'
       strokeWidth: 1.5
       lineCap: 'round'
       lineJoin: 'round'

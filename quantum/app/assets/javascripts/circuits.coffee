@@ -41,6 +41,11 @@ getOperatorByIdType = (id, type) ->
 deleteOperatorClick = ->
   mousePos = @stage.getMousePosition()
   op = @operators.findClosest(mousePos['x'], mousePos['y'])
+
+  if op.operatorType == 'measurement'
+    connectedControlled = @operators.findAllByType('controlled').filter((controlled) -> controlled.measurement == op)
+    _.map(connectedControlled, (controlled) -> @operators.remove controlled)
+
   @operators.remove op, @operatorsLayer, true
 
 moveOperatorClick = ->
@@ -50,8 +55,13 @@ moveOperatorClick = ->
   $(@stage.getContent()).on('mousemove', =>
     mousePos = @stage.getMousePosition()
     [lineIds, y] = findLinesY(mousePos['y'], op.size)
+
     op.changePosition(mousePos['x'], y)
     op.changeLines(lineIds)
+    if op.operatorType == 'measurement'
+      connectedControlled = @operators.findAllByType('controlled').filter((controlled) -> controlled.measurement == op)
+      _.map(connectedControlled, (controlled) -> controlled.moveMeasurementConnection())
+      
     @operatorsLayer.draw()
   )
   $(@stage.getContent()).on('click.move', =>
@@ -102,16 +112,28 @@ newOperatorClick = =>
   op = newOperator(lineIds, mousePos['x'], y, operator)
 
   if operator.type == "controlled"
+    newMousePos = @stage.getMousePosition()
+    measurement = @operators.findAllByType('measurement').findClosest(newMousePos['x'], newMousePos['y'])
+    op.measurement = measurement
+    op.renderMeasurementConnection(@operatorsLayer, true)
+    
     # jquery .one not working in this situation
+    $(@stage.getContent()).on('mousemove.controlled', =>
+      newMousePos = @stage.getMousePosition()
+      measurement = @operators.findAllByType('measurement').findClosest(newMousePos['x'], newMousePos['y'])
+      op.measurement = measurement
+      op.moveMeasurementConnection(@operatorsLayer, true)
+    )
     $(@stage.getContent()).off('click.normal')
     $(@stage.getContent()).on('click.controlled', =>
       $(@stage.getContent()).off('click.controlled')
+      $(@stage.getContent()).off('mousemove.controlled')
       bindStageClick()
 
       newMousePos = @stage.getMousePosition()
       measurement = @operators.findAllByType('measurement').findClosest(newMousePos['x'], newMousePos['y'])
       op.measurement = measurement
-      op.renderMeasurementConnection(@operatorsLayer, true)
+      op.moveMeasurementConnection(@operatorsLayer, true)
     )
 
 setMode = (mode) ->
