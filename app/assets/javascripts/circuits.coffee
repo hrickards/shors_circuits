@@ -4,10 +4,6 @@
 //= require Line
 //= require Operator
 
-GATES = [{'id': 1, 'name': 'Hadamard', 'symbol': 'H', 'size': 1, 'type': 'gate'}, {'id': 2, 'name': 'CNOT', 'symbol': 'CNOT', 'size': 2, 'type': 'gate'}, {'id': 3, 'name': 'Pauli Z', 'symbol': 'Z', 'size': 1, 'type': 'gate'}]
-MEASUREMENTS = [{'id': 1, 'name': 'Standard Measurement', 'symbol': 'M', 'size': 1, 'type': 'measurement'}]
-CONTROLLED_GATES = [{'id': 1, 'name': 'Controlled G', 'symbol': 'G', 'size': 1, 'type': 'controlled'}]
-
 # Returns new canvas stage for passed canvas ID
 newStage = (canvasId) ->
   canvasWidth = $('#' + canvasId).width()
@@ -29,13 +25,13 @@ operatorType = ->
   return $('#operatorType').val()
 
 getOperator = ->
-  operatorId = parseInt($('#operatorId').val())
+  operatorId = $('#operatorId').val()
   return getOperatorByIdType(operatorId, operatorType())
 
 getOperatorByIdType = (id, type) ->
-  operators = GATES
-  operators = MEASUREMENTS if type == 'measurement'
-  operators = CONTROLLED_GATES if type == 'controlled'
+  operators = window.GATES
+  operators = window.MEASUREMENTS if type == 'measurement'
+  operators = window.CONTROLLED_GATES if type == 'controlled'
   return _.find(operators, (op) -> op.id == id)
 
 deleteOperatorClick = ->
@@ -163,9 +159,9 @@ setupDropdowns = ->
   changeDropdown('gate')
 
 changeDropdown = (opType) ->
-  operators = GATES
-  operators = MEASUREMENTS if opType == 'measurement'
-  operators = CONTROLLED_GATES if operatorType() == 'controlled'
+  operators = window.GATES
+  operators = window.MEASUREMENTS if opType == 'measurement'
+  operators = window.CONTROLLED_GATES if operatorType() == 'controlled'
 
   $('#operatorId').empty()
   _.each(operators, (operator) ->
@@ -213,6 +209,28 @@ init = ->
     loadCircuit()
   else
     setupNewCircuit()
+
+# Load operators then run passed function
+bootstrap = (func) ->
+  $.get("/operators.json").done((data) ->
+    gates = []
+    measurements = []
+    controlled_gates = []
+
+    _.each(data, (op) =>
+      op = op['operator']
+      list =  switch op['type']
+        when "gate" then gates
+        when "measurement" then measurements
+        when "controlled" then controlled_gates
+      list.push(op)
+    )
+
+    window.GATES = gates
+    window.MEASUREMENTS = measurements
+    window.CONTROLLED_GATES = controlled_gates
+    func()
+  )
 
 setupNewCircuit = ->
   @lines.add(3)
@@ -335,4 +353,4 @@ $(document).ready ->
   $(window).on('resizeEnd orientationchange', resize)
 
   resize()
-  init()
+  bootstrap(init)

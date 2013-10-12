@@ -31,10 +31,33 @@ class Circuit
       op
     end
 
+    operators = %w{gate measurement controlled}.map do |type|
+      @operators
+        .select { |o| o["operator_type"] == type }
+        .map { |o| Operator.find o["operator_id"] }
+        .map do |o|
+          h = {
+            id: o.id.to_s,
+            name: o.name
+          }
+          if type == "controlled"
+            h[:matrices] = Hash[o.matrix]
+            h[:values] = o.matrix.map { |k, v| k }
+          else
+            h[:matrix] = o.matrix
+          end
+
+          h
+        end
+    end
+
     input = {
       circuit: circuit,
       register_size: @lines,
-      input_register: @initial_state
+      input_register: @initial_state,
+      gates: operators[0],
+      measurements: operators[1],
+      controlled_gates: operators[2]
     }
     output = `lib/quantum_simulation.py #{Shellwords.escape(JSON.generate(input))}`.strip.gsub(/^'|'$/, '')
     JSON.parse output

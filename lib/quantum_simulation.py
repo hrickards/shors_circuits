@@ -3,29 +3,29 @@ from sympy import Matrix, eye, sqrt, latex
 from sympy.physics.quantum import TensorProduct
 from numpy import binary_repr
 from sympy.parsing.sympy_parser import parse_expr
-import pipes
-import json
-import sys, urllib, re
-
-GATES = [
-    {'id': 1, 'name': 'Hadamard', 'matrix': 1/sqrt(2) * Matrix([[1,1],[1,-1]])},
-    {'id': 2, 'name': 'CNOT', 'matrix': Matrix([[1,0,0,0],[0,1,0,0],[0,0,0,1],[0,0,1,0]])},
-    {'id': 3, 'name': 'Z', 'matrix': Matrix([[1,0],[0,-1]])}
-]
-MEASUREMENTS = [
-    {'id': 1, 'name': 'Standard basis', 'matrix': Matrix([[1,0],[0,-1]])}
-]
-CONTROLLED_GATES = [
-    {'id': 1, 'name': 'G', 'values': [-1, 1], 'matrices': {
-        -1: 1/sqrt(2) * Matrix([[1,1],[1,-1]]),
-        1: eye(2)
-    }}
-]
+import pipes, json, sys, urllib, re, itertools
 
 # TODO Clean this up, rather than bunging a staticmethod onto everything
 class QuantumSimulation:
-    def __init__(self, register_size):
+    def __init__(self, register_size, gates, measurements, controlled_gates):
         self.register_size = register_size
+        self.gates = map(self.parse_g_or_m, gates)
+        self.measurements = map(self.parse_g_or_m, measurements)
+        self.controlled_gates = map(self.parse_c_g, controlled_gates)
+
+    def parse_matrix(self, mat):
+        for i, j in itertools.product(range(len(mat)), range(len(mat))):
+            mat[i][j] = parse_expr(mat[i][j])
+        return Matrix(mat)
+
+
+    def parse_g_or_m(self, op):
+        op["matrix"] = self.parse_matrix(op["matrix"])
+        return op
+
+    def parse_c_g(self, op):
+        op["matrices"] = dict(map(lambda (val, mat): [parse_expr(val), self.parse_matrix(mat)], op["matrices"].iteritems()))
+        return op
 
     def run_circuit(self, circuit, input_register):
         input_register = self.parse_ket_string(input_register)
@@ -159,7 +159,7 @@ class QuantumSimulation:
         gate = self.find_controlled_gate(op['operator_id'])
         value = moutputs[op['measurement_id']]
         value = filter(lambda x: x == value, gate['values'])[0]
-        smatrix = gate['matrices'][value]
+        smatrix = gate['matrices'][parse_expr(str(value))]
 
         before = op['lines'][0]
         after = self.register_size - op['lines'][-1] - 1
@@ -169,18 +169,18 @@ class QuantumSimulation:
 
         #                 registers = self.run_fragment(circuit, register, measurement_outputs) #                 for i in range(len(registers)): registers[i][-1] = registers[i][-1] * probability
     def find_gate(self, oid):
-        return filter(lambda o: o['id'] == oid, GATES)[0]
+        return filter(lambda o: o['id'] == oid, self.gates)[0]
 
     def find_measurement(self, oid):
-        return filter(lambda o: o['id'] == oid, MEASUREMENTS)[0]
+        return filter(lambda o: o['id'] == oid, self.measurements)[0]
 
     def find_controlled_gate(self, oid):
-        return filter(lambda o: o['id'] == oid, CONTROLLED_GATES)[0]
+        return filter(lambda o: o['id'] == oid, self.controlled_gates)[0]
 
 if __name__ == "__main__":
     data = json.loads(sys.argv[1])
 
-    sim = QuantumSimulation(data['register_size'])
+    sim = QuantumSimulation(data['register_size'], data['gates'], data['measurements'], data['controlled_gates'])
     results = sim.run_circuit(data['circuit'], data['input_register'])
 
     print pipes.quote(json.dumps(results))
