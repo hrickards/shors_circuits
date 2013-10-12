@@ -14,6 +14,10 @@ Quantum::App.controllers :circuits do
       else
         @circuit = Circuit.find_or_create_by_c_id_and_v_id(@c_id, @v_id).ensure_values
       end
+      @iterations = @circuit.iterations.map do |i|
+        i[:url] = url_for(:circuits, :show, :c_id => i[:c_id], :v_id => i[:v_id])
+        i
+      end
       render 'circuits/show.rabl'
     else
       render 'circuits/show.erb'

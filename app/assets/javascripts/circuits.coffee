@@ -254,6 +254,25 @@ renderCircuit = (circuit) =>
   ))
   @operators.render(@operatorsLayer)
 
+  # Show previous iterations of circuit
+  showIterations(circuit)
+
+showIterations = (circuit) ->
+  html = "<ul>"
+
+  _.each(circuit['iterations'], (iteration) ->
+    url = iteration['v_id']
+
+    html += "<li" + (if iteration['current'] then " class='current'" else "") + ">"
+    html += "<a href='" + iteration["url"] + "'>" unless iteration['current']
+    html += iteration['v_id'] + " - " + iteration['modified']
+    html += "</a>" unless iteration['current']
+    html += "</li>"
+  )
+
+  html += "</ul>"
+  $('#iterations').html(html)
+
 genHash = ->
   operators = @operators.toArray()
   hash = {

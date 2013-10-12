@@ -51,4 +51,15 @@ class Circuit
   def self.new_c_id
     (self.all.map { |doc| doc.c_id }.max || 0) + 1
   end
+
+  def iterations
+    self.class.find_all_by_c_id(self.c_id).map do |c|
+      {
+        v_id:  c.v_id,
+        c_id: c.c_id,
+        modified: c.updated_at.strftime("%b %d %Y"),
+        current: c.v_id == self.v_id
+      }
+    end
+  end
 end

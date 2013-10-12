@@ -39,6 +39,10 @@ div, nav { @include box-sizing(border-box); }
     color: #999;
 
     select { width: 100%; }
+
+    #iterations {
+      .current { font-weight: bold; }
+    }
   }
 
   #content {
