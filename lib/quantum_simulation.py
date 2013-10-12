@@ -35,8 +35,16 @@ class QuantumSimulation:
         self.circuit = list(circuit)
 
         results = self.run_fragment(circuit, [(input_register, 1, {})])
+
+        last_result = results[-1]
+        measurements = last_result[0][2].keys()
+        probabilities = {measurement: self.list_to_prob(map(lambda s: s[2][measurement], last_result)) for measurement in measurements}
+
         results = {self.get_oid(i): map(self.format_state, states) for i, states in enumerate(results)}
-        return results
+        return results, probabilities
+
+    def list_to_prob(self, lis):
+        return {str(el): lis.count(el)*1.0/len(lis) for el in set(lis)}
 
     def get_oid(self, i):
         if i < 1:
@@ -117,7 +125,10 @@ class QuantumSimulation:
 
             new_statess = self.run_fragment(circuit, states)
 
-            for i in range(len(new_statess[0])): new_statess[0][i] = new_statess[0][i][0:2]
+            # Remove measurement outputs from all apart from first to save space
+            # Need first for output
+            #if len(new_statess) > 1:
+                # for i in range(len(new_statess[1])): new_statess[1][i] = new_statess[1][i][0:2]
 
             new_statess.insert(0, input_states)
             
@@ -181,6 +192,6 @@ if __name__ == "__main__":
     data = json.loads(sys.argv[1])
 
     sim = QuantumSimulation(data['register_size'], data['gates'], data['measurements'], data['controlled_gates'])
-    results = sim.run_circuit(data['circuit'], data['input_register'])
+    results, probabilities = sim.run_circuit(data['circuit'], data['input_register'])
 
-    print pipes.quote(json.dumps(results))
+    print pipes.quote(json.dumps({'results':results, 'probabilities':probabilities}))

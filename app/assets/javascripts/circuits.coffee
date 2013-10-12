@@ -316,6 +316,13 @@ run = ->
   # TODO Is this RESTul?
   $.post('/circuits/run', {circuit: JSON.stringify(genHash())}).done((data) =>
     @resultsData = data['results']
+
+    _.each(data['probabilities'], (results, num) ->
+      console.log("Measurement " + num)
+      _.each(results, (prob, result) ->
+        console.log("Results " + result + " wp " + prob)
+      )
+    )
     #     html = "<ul>"
     # 
     #     _.each(data['results'], (state) ->

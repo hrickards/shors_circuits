@@ -60,7 +60,7 @@ Quantum::App.controllers :circuits do
 
     @results = @circuit.run
 
-    {'results' => @results}.to_json
+    @results.to_json
   end
 
   get :run, :map => '/circuits/:c_id/:v_id/run', :provides => [:json] do
