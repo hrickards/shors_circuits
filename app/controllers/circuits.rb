@@ -18,6 +18,7 @@ Quantum::App.controllers :circuits do
         i[:url] = url_for(:circuits, :show, :c_id => i[:c_id], :v_id => i[:v_id])
         i
       end
+      @iterations.sort! { |a, b| a[:v_id] <=> b[:v_id] }
       render 'circuits/show.rabl'
     else
       render 'circuits/show.erb'
