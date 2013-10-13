@@ -1,3 +1,5 @@
+# jquery globally
+//= require vendor/jquery-ui
 //= require vendor/kinetic
 //= require vendor/underscore
 //= require vendor/raphael
@@ -7,6 +9,7 @@
 //= require Line
 //= require Operator
 //= require VerticalLine
+//= require MatrixInput
 
 # Returns new canvas stage for passed canvas ID
 newStage = (canvasId) ->
@@ -176,12 +179,12 @@ showMeasurementResults = (oId) ->
 removeMeasurementResults = ->
   @r.clear() if @r?
 
-newOperatorClick = =>
+newOperatorInstanceClick = =>
   mousePos = @stage.getMousePosition()
   operator = getOperator()
 
   [lineIds, y] = findLinesY(mousePos['y'], operator.size)
-  op = newOperator(lineIds, mousePos['x'], y, operator)
+  op = newOperatorInstance(lineIds, mousePos['x'], y, operator)
 
   if operator.type == "controlled"
     newMousePos = @stage.getMousePosition()
@@ -223,12 +226,12 @@ getMode = ->
 
 stageClick = ->
   switch getMode()
-    when "add" then newOperatorClick()
+    when "add" then newOperatorInstanceClick()
     when "move" then moveOperatorClick()
     when "delete" then deleteOperatorClick()
     when "run" then inspectClick()
 
-newOperator = (lines, x, y, operator) ->
+newOperatorInstance = (lines, x, y, operator) ->
   op = @operators.new(lines, x, y, operator.type, operator.id, operator.symbol, operator.size)
   op.render(@operatorsLayer, true)
   return op
@@ -242,7 +245,7 @@ setupDropdowns = ->
 changeDropdown = (opType) ->
   operators = window.GATES
   operators = window.MEASUREMENTS if opType == 'measurement'
-  operators = window.CONTROLLED_GATES if operatorType() == 'controlled'
+  operators = window.CONTROLLED_GATES if opType == 'controlled'
 
   $('#operatorId').empty()
   _.each(operators, (operator) ->
@@ -271,9 +274,65 @@ bindLinkClick = ->
   $('#save').on('click', -> save(); return false)
   $('#addLine').on('click', -> addLine(); return false)
   $('#deleteLine').on('click', -> deleteLine(); return false)
+  $('#newOperator').on('click', -> newOperator(); return false)
+
+newOperator = ->
+  $('#newOperatorForm').dialog("open")
+
+setupNewOperatorForm = ->
+  $('#newOperatorForm').dialog({
+    autoOpen: false
+    height: 300
+    width: 350
+    modal: true
+    buttons:
+      "Submit": =>
+        data = {
+          name: $("#name").val()
+          symbol: $("#symbol").val()
+          type: $("#type").val()
+          size: $("#size").val()
+          matrix: @matrixInput.value()
+        }
+        # TODO Post data off to mongo
+        
+        listData = {
+          id: ''
+          name: data['name']
+          size: data['size']
+          symbol: data['symbol']
+          type: data['type']
+        }
+        list =  switch data['type']
+          when "gate" then window.GATES
+          when "measurement" then window.MEASUREMENTS
+          when "controlled" then window.CONTROLLED_GATES
+        list.push(listData)
+
+        # If type already selected, add to dropdown
+        $('#operatorId').append($("<option></option>").attr("value", listData['id']).text(listData['name'])) if data['type'] == operatorType()
+
+        $('#newOperatorForm').dialog("close")
+      "Cancel": ->
+        $(@).dialog("close")
+    close: =>
+      # Clear form
+      $('#name').val('')
+      $('#symbol').val('')
+      $('#type').prop('selectedIndex', 0)
+      $('#size').val('')
+      @matrixInput.render()
+  })
+  @matrixInput = new MatrixInput({
+    el: $('#matrix')
+    sizeEl: $('#size')
+    class: "ui-widget-content ui-corner-all matrixInputBox"
+  })
+
 
 # Initialises the page with a new stage
 init = ->
+  setupNewOperatorForm()
   setupDropdowns()
   setMode('add')
   @stage = newStage('canvasContainer')

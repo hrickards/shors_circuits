@@ -57,3 +57,5 @@ div, nav { @include box-sizing(border-box); }
     a.active { font-weight: bold; }
   }
 }
+
+.matrixInputBox { width: 30px }

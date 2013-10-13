@@ -1,5 +1,6 @@
 <% content_for :head do %>
   <%= javascript_include_tag 'circuits' %>
+  <%= stylesheet_link_tag 'flick/jquery-ui' %>
 <% end %>
 <div id="sidebar">
   <select id="operatorType">
@@ -19,6 +20,7 @@
     <li><a id="save" href="#">Save</a></li>
     <li><a id="addLine" href="#">Add Line</a></li>
     <li><a id="deleteLine" href="#">Delete Line</a></li>
+    <li><a id="newOperator" href="#">New Operator</a></li>
   </ul>
 
   <div id="iterations">
@@ -28,6 +30,31 @@
   </div>
   <div id="measurementsContainer">
   </div>
+</div>
+<div id="newOperatorForm">
+  <form>
+    <fieldset>
+      <label for="name">Name</label>
+      <input type="text" name="name" id="name" class="ui-widget-content ui-corner-all" />
+
+      <label for="symbol">Symbol</label>
+      <input type="text" name="symbol" id="symbol" class="ui-widget-content ui-corner-all" />
+
+      <label for="type">Type</label>
+      <select name="type" id="type" class="ui-widget-content ui-corner-all">
+        <option value="gate">Gate</option>
+        <option value="measurement">Measurement</option>
+        <option value="controlled">Controlled Gate</option>
+      </select>
+
+      <label for="size">Size</label>
+      <input type="number" name="size" id="size" class="ui-widget-content ui-corner-all" />
+
+      <label for="matrix">Matrix</label>
+      <table id="matrix">
+      </table>
+    </fieldset>
+  </form>
 </div>
 <div id="content">
   <input id="initialState" placeholder="Initial state">
