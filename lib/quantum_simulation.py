@@ -29,6 +29,8 @@ class QuantumSimulation:
 
     def run_circuit(self, circuit, input_register):
         input_register = self.parse_ket_string(input_register)
+        # If a dodgy input_register is passed, just use |00...00>
+        if all(map(lambda x: x == 0, input_register)): input_register[0] = 1
 
         self.states = {-1: [[input_register, 1]]}
         circuit.sort(key=lambda x: x['id'])
