@@ -117,6 +117,9 @@ showResults = (oId) ->
   html += "</ul>"
   $("#results").html(html)
 
+removeResults = ->
+  $("#results").html("")
+
 
 newOperatorClick = =>
   mousePos = @stage.getMousePosition()
@@ -153,6 +156,7 @@ newOperatorClick = =>
 setMode = (mode) ->
   if mode != "run" and @operators?
     ensureNoVerticalLine()
+    removeResults()
   $("#controlLinks > li > a").removeClass("active")
   $("#controlLinks > li > #" + mode).addClass("active")
   @mode = mode
