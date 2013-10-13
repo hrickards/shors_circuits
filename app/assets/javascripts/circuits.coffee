@@ -1,5 +1,8 @@
 //= require vendor/kinetic
 //= require vendor/underscore
+//= require vendor/raphael
+//= require vendor/g.raphael
+//= require vendor/g.pie
 //= require Collection
 //= require Line
 //= require Operator
@@ -88,6 +91,16 @@ ensureNoVerticalLine = ->
     @verticalLine.unrender(@inspectorsLayer, true)
     @verticalLine = undefined
 
+highlightMeasurement = (opm) ->
+  opm.highlight()
+  @operatorsLayer.draw()
+
+unhighlightAllMeasurements = ->
+  _.each(@operators.findAllByType('measurement').models, (op) ->
+    op.unhighlight()
+  )
+  @operatorsLayer.draw()
+
 inspectClick = ->
   mousePos = @stage.getMousePosition()
   ensureVerticalLineAt(mousePos['x'])
@@ -102,6 +115,8 @@ inspectClick = ->
   opm = @operators.findAllByType('measurement').findClosestByX(mousePos['x'])
   if opm?
     highlightMeasurement(opm)
+    showMeasurementResults(opm.id) unless @oldOpmId == opm.id
+    @oldOpmId = opm.id
 
 showResults = (oId) ->
   results = @resultsData[oId]
@@ -120,6 +135,46 @@ showResults = (oId) ->
 removeResults = ->
   $("#results").html("")
 
+showMeasurementResults = (oId) ->
+  results = @measurementResultsData[oId]
+  keys = _.keys(results)
+  labels = _.map(keys, (key) -> key + " wp %%")
+  values = _.map(keys, (key) -> results[key])
+
+  unless @r?
+    cont = $('#measurementsContainer')
+    @r = Raphael(cont.get(0), cont.width(), cont.height())
+
+  @r.clear()
+  @pie = @r.piechart(
+    @r.width/2,
+    140,
+    100,
+    values,
+    {
+      legend: labels
+      legendpos: "east"
+    }
+  )
+
+  @r.text(@r.width/2, 15, "Measurement Result").attr({ font: "20px sans-serif" })
+
+  @pie.hover( ->
+    @sector.stop()
+    @sector.scale(1.03, 1.03, @cx, @cy)
+    if @label
+      @label[0].stop()
+      @label[0].attr({ r: 7.5 })
+      @label[1].attr({ "font-weight": 800 })
+  , ->
+    @sector.animate({ transform: 's1 1 ' + @cx + ' ' + @cy}, 50, "bounce")
+    if @label
+      @label[0].animate({ r: 5 }, 50, "bounce")
+      @label[1].attr({ "font-weight": 400 })
+  )
+
+removeMeasurementResults = ->
+  @r.clear() if @r?
 
 newOperatorClick = =>
   mousePos = @stage.getMousePosition()
@@ -156,6 +211,8 @@ newOperatorClick = =>
 setMode = (mode) ->
   if mode != "run" and @operators?
     ensureNoVerticalLine()
+    unhighlightAllMeasurements()
+    removeMeasurementResults()
     removeResults()
   $("#controlLinks > li > a").removeClass("active")
   $("#controlLinks > li > #" + mode).addClass("active")
@@ -343,13 +400,14 @@ run = ->
   # TODO Is this RESTul?
   $.post('/circuits/run', {circuit: JSON.stringify(genHash())}).done((data) =>
     @resultsData = data['results']
+    @measurementResultsData = data['probabilities']
 
-    _.each(data['probabilities'], (results, num) ->
-      console.log("Measurement " + num)
-      _.each(results, (prob, result) ->
-        console.log("Results " + result + " wp " + prob)
-      )
-    )
+    # _.each(data['probabilities'], (results, num) ->
+    #   console.log("Measurement " + num)
+    #   _.each(results, (prob, result) ->
+    #     console.log("Results " + result + " wp " + prob)
+    #   )
+    # )
     #     html = "<ul>"
     # 
     #     _.each(data['results'], (state) ->

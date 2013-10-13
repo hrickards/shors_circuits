@@ -14,9 +14,13 @@ class Operator
     @group.remove()
     @unrenderMeasurementConnection() if @measurement?
     layer.draw() if draw
+  highlight: ->
+    @rect.setFill('blue')
+  unhighlight: ->
+    @rect.setFill('white')
   render: (layer, draw) ->
     @group = new Kinetic.Group()
-    rect = new Kinetic.Rect
+    @rect = new Kinetic.Rect
       x: @x
       y: @y
       width: @width
@@ -24,9 +28,9 @@ class Operator
       fill: 'white'
       stroke: 'black'
       strokeWidth: 3
-    rect.setOffset
-      x: rect.getWidth() / 2
-      y: rect.getHeight() / 2
+    @rect.setOffset
+      x: @rect.getWidth() / 2
+      y: @rect.getHeight() / 2
     text = new Kinetic.Text
       x: @x
       y: @y
@@ -40,7 +44,7 @@ class Operator
 
     @renderMeasurementConnection(layer) if @measurement?
 
-    @group.add(rect)
+    @group.add(@rect)
     @group.add(text)
     layer.add(@group)
     layer.draw() if draw
