@@ -3,6 +3,7 @@
 //= require Collection
 //= require Line
 //= require Operator
+//= require VerticalLine
 
 # Returns new canvas stage for passed canvas ID
 newStage = (canvasId) ->
@@ -74,16 +75,33 @@ findLinesY = (y, operatorSize) ->
 
   return [lineIds, y]
 
+ensureVerticalLineAt = (x) ->
+  if @verticalLine?
+    @verticalLine.changePosition(x)
+    @inspectorsLayer.draw()
+  else
+    @verticalLine = new VerticalLine(x)
+    @verticalLine.render(@inspectorsLayer, true)
+
+ensureNoVerticalLine = ->
+  if @verticalLine?
+    @verticalLine.unrender(@inspectorsLayer, true)
+    @verticalLine = undefined
+
 inspectClick = ->
   mousePos = @stage.getMousePosition()
+  ensureVerticalLineAt(mousePos['x'])
 
   op = @operators.leftOf(mousePos['x']).findClosestByX(mousePos['x'])
   oId = -1
   oId = op.id if op?
-
   showResults(oId)
 
-  # o = after operator o
+  # Find closest measurement
+  unhighlightAllMeasurements()
+  opm = @operators.findAllByType('measurement').findClosestByX(mousePos['x'])
+  if opm?
+    highlightMeasurement(opm)
 
 showResults = (oId) ->
   results = @resultsData[oId]
@@ -133,6 +151,8 @@ newOperatorClick = =>
     )
 
 setMode = (mode) ->
+  if mode != "run" and @operators?
+    ensureNoVerticalLine()
   $("#controlLinks > li > a").removeClass("active")
   $("#controlLinks > li > #" + mode).addClass("active")
   @mode = mode
@@ -204,6 +224,9 @@ init = ->
 
   @operatorsLayer = newLayer(@stage)
   @operators = new Collection(Operator)
+
+  # Define last so on top of other layers
+  @inspectorsLayer = newLayer(@stage)
 
   if existingCircuit()
     loadCircuit()
