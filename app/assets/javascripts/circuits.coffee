@@ -105,6 +105,7 @@ unhighlightAllMeasurements = ->
   @operatorsLayer.draw()
 
 inspectClick = ->
+  $("#inspectMessage").hide()
   mousePos = @stage.getMousePosition()
   ensureVerticalLineAt(mousePos['x'])
 
@@ -217,6 +218,8 @@ setMode = (mode) ->
     unhighlightAllMeasurements()
     removeMeasurementResults()
     removeResults()
+    hideResultsContainer()
+    @oldOpmId = undefined
   $("#controlLinks > li > a").removeClass("active")
   $("#controlLinks > li > #" + mode).addClass("active")
   @mode = mode
@@ -333,6 +336,7 @@ setupNewOperatorForm = ->
 # Initialises the page with a new stage
 init = ->
   setupNewOperatorForm()
+  setupResultsContainer()
   setupDropdowns()
   setMode('add')
   @stage = newStage('canvasContainer')
@@ -455,11 +459,28 @@ save = ->
   # console.log(data['status'])
   # )
 
+showResultsContainer = ->
+  $("#resultsContainer").dialog("open")
+
+hideResultsContainer = ->
+  $("#resultsContainer").dialog("close")
+  $("#inspectMessage").show()
+
+setupResultsContainer = ->
+  $("#resultsContainer").dialog({
+    autoOpen: false
+    width: 500
+    height: 400
+    position: ['left', 'bottom']
+  })
+
 run = ->
   # TODO Is this RESTul?
   $.post('/circuits/run', {circuit: JSON.stringify(genHash())}).done((data) =>
     @resultsData = data['results']
     @measurementResultsData = data['probabilities']
+
+    showResultsContainer()
 
     # _.each(data['probabilities'], (results, num) ->
     #   console.log("Measurement " + num)
