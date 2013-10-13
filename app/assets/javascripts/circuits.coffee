@@ -328,7 +328,7 @@ setupNewOperatorForm = ->
     sizeEl: $('#size')
     class: "ui-widget-content ui-corner-all matrixInputBox"
   })
-
+  @matrixInput.render()
 
 # Initialises the page with a new stage
 init = ->

@@ -12,10 +12,11 @@ class MatrixInput
     )
 
   size: ->
-    return @sizeEl.val()
+    s = @sizeEl.val()
+    s = 1 if s < 1
+    return Math.pow(2, s)
 
   render: ->
-    return if @size() < 0
     delta = @size() - @currentSize
     if delta > 0
       @addRC(delta)
@@ -50,8 +51,7 @@ class MatrixInput
     value = []
     _(@el.find('tr')).each( (row) ->
       rowValue = []
-      _($(row).find('td')).each( (col) ->
-        rowValue.push($(col).val()))
+      _($(row).find('td')).each( (col) -> rowValue.push($(col).children('input').val()))
       value.push(rowValue)
     )
     return value
