@@ -291,26 +291,26 @@ setupNewOperatorForm = ->
           name: $("#name").val()
           symbol: $("#symbol").val()
           type: $("#type").val()
-          size: $("#size").val()
+          size: parseInt($("#size").val())
           matrix: @matrixInput.value()
         }
-        # TODO Post data off to mongo
-        
-        listData = {
-          id: ''
-          name: data['name']
-          size: data['size']
-          symbol: data['symbol']
-          type: data['type']
-        }
-        list =  switch data['type']
-          when "gate" then window.GATES
-          when "measurement" then window.MEASUREMENTS
-          when "controlled" then window.CONTROLLED_GATES
-        list.push(listData)
+        $.post('/operators', {operator: JSON.stringify(data)}).done((rData) =>
+          listData = {
+            id: rData['id']
+            name: data['name']
+            size: data['size']
+            symbol: data['symbol']
+            type: data['type']
+          }
+          list =  switch data['type']
+            when "gate" then window.GATES
+            when "measurement" then window.MEASUREMENTS
+            when "controlled" then window.CONTROLLED_GATES
+          list.push(listData)
 
-        # If type already selected, add to dropdown
-        $('#operatorId').append($("<option></option>").attr("value", listData['id']).text(listData['name'])) if data['type'] == operatorType()
+          # If type already selected, add to dropdown
+          $('#operatorId').append($("<option></option>").attr("value", listData['id']).text(listData['name'])) if data['type'] == operatorType()
+        )
 
         $('#newOperatorForm').dialog("close")
       "Cancel": ->
