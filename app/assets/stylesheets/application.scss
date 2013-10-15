@@ -2,6 +2,7 @@
 @import "compass/reset";
 
 @import "bootstrap";
+@import "font-awesome";
 
 @import "susy";
 // Susy config
@@ -67,6 +68,10 @@ div, nav { @include box-sizing(border-box); }
   #controlLinks {
     a { color: #999; } 
     a.active { font-weight: bold; }
+
+    button {
+      width: 3em;
+    }
   }
 }
 
@@ -110,3 +115,7 @@ div, nav { @include box-sizing(border-box); }
   margin-left: 20px;
   margin-right: 20px;
 }
+
+$buttonSpacing: 0.3em;
+.closeButton { margin-top: -$buttonSpacing; }
+.closeTitle { margin-top: $buttonSpacing; }

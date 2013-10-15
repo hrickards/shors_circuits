@@ -32,14 +32,6 @@ GIT
       mail (~> 2.5.3)
       padrino-core (= 0.11.3)
 
-GIT
-  remote: http://github.com/thomas-mcdonald/bootstrap-sass
-  revision: 0e88056ac5d58fb0bbd23d3fe929eac01712d964
-  branch: 3
-  specs:
-    bootstrap-sass (3.0.0.0)
-      sass (~> 3.2)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -123,7 +115,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bootstrap-sass!
   bson_ext
   coffee-script
   compass

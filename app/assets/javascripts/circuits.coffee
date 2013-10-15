@@ -256,6 +256,7 @@ changeDropdown = (opType) ->
   _.each(operators, (operator) ->
     $('#operatorId').append($("<option></option>").attr("value", operator.id).text(operator.name))
   )
+  $('#operatorId').selectpicker('refresh')
 
 bindStageClick = ->
   $(@stage.getContent()).on('click.normal', stageClick)
@@ -317,6 +318,7 @@ setupNewOperatorForm = ->
 
       # If type already selected, add to dropdown
       $('#operatorId').append($("<option></option>").attr("value", listData['id']).text(listData['name'])) if data['type'] == operatorType()
+      $('#operatorId').selectpicker('refresh')
     )
 
     closeNewOperatorForm()
