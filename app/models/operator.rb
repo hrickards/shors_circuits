@@ -10,6 +10,8 @@ class Operator
   key :size, Integer
   # Use array rather than matrix as just string types for symbolicness
   key :matrix, Array
+  key :uid, String
+  key :default, Boolean
 
   timestamps!
 end

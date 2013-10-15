@@ -294,7 +294,7 @@ closeNewOperatorForm = ->
   @matrixInput.render()
 
 setupNewOperatorForm = ->
-  $('#newOperatorSubmit').on('click', ->
+  $('#newOperatorSubmit').on('click', =>
     data = {
       name: $("#name").val()
       symbol: $("#symbol").val()
@@ -360,7 +360,7 @@ init = ->
 
 # Load operators then run passed function
 bootstrap = (func) ->
-  $.get("/operators.json").done((data) ->
+  $.get(operatorsPath()).done((data) ->
     gates = []
     measurements = []
     controlled_gates = []
@@ -381,12 +381,19 @@ bootstrap = (func) ->
   )
 
 setupNewCircuit = ->
+  $('#iterations').hide()
   @lines.add(3)
   @lines.render(@linesLayer)
 
 existingCircuit = ->
   parts = window.location.pathname.split(".")[0].split("/")
   return parts[parts.length - 3] == "circuits"
+
+operatorsPath = ->
+  splits = window.location.pathname.split("/")
+  path = "/operators"
+  path += "/" + splits[2] if splits.length > 2
+  return path + ".json"
 
 dataPath = (infix) ->
   infix = "" unless infix?

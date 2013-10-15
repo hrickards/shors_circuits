@@ -22,4 +22,8 @@ class User
   def circuits
     Circuit.find_all_by_uid self.uid
   end
+
+  def operators;
+    Operator.find_all_by_uid self.uid
+  end
 end
