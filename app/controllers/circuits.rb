@@ -6,6 +6,22 @@ Quantum::App.controllers :circuits do
     @v_id = v_id.nil? ? nil : v_id.to_i
   end
 
+  get :index, :map => '/my_circuits', :provides => :html do
+    redirect_to url_for(:pages, :home) unless signed_in?
+    @circuits = current_user.circuits.group_by { |c| c.c_id }.to_a
+    @circuits.map! do |cid, circuits|
+      [
+        cid,
+        circuits.sort_by { |circuit| circuit.v_id }.last(5),
+        circuits.map { |circuit| circuit.updated_at }.sort.first
+      ]
+    end
+    @circuits.sort_by! { |cid, circuits, updated_at| updated_at }
+    @circuits.reverse!
+
+    render 'circuits/index.erb'
+  end
+
   get :show, :map => '/circuits(/:c_id)(/:v_id)', :provides => [:html, :json] do
     case content_type
     when :json then
