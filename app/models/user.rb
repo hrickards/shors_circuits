@@ -18,4 +18,8 @@ class User
     user.save!
     user
   end
+
+  def circuits
+    Circuit.find_all_by_uid self.uid
+  end
 end

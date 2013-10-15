@@ -1,1 +1,27 @@
-Hello world
+<div class="container" id="pageContainer">
+  <div class="jumbotron">
+    <h1>Welcome...</h1>
+    <p>Explanatory text about Shor's Circuits here</p>
+    <p><a class="btn btn-primary btn-lg">Learn more</a></p>
+  </div>
+
+  Put some more things here
+
+  <% if signed_in? %>
+    <div class="panel panel-default" id="userCircuits">
+      <div class="panel-heading">
+        <h3 class="panel-title">My Circuits</h3>
+      </div>
+      <div class="panel-body">
+        <ul class="nav nav-pills nav-stacked">
+          <% @circuits.each do |circuit| %>
+            <li>
+              <% url = url_for :circuits, :show, c_id: circuit.c_id, v_id: circuit.v_id %>
+              <a href="<%= url %>">Circuit <%= circuit.c_id %>.<%= circuit.v_id %></a>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+</div>

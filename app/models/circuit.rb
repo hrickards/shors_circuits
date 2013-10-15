@@ -11,6 +11,8 @@ class Circuit
   key :c_id, Integer
   key :v_id, Integer
 
+  key :uid, String
+
   timestamps!
 
   def ensure_values

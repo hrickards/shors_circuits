@@ -26,6 +26,7 @@ Quantum::App.controllers :circuits do
   end
 
   put :update, :map => '/circuits(/:c_id)(/:v_id)', :provides => [:json] do
+    redirect_to url_for(:pages, :home) unless signed_in?
     @c_id = Circuit.new_c_id if @c_id.nil?
     if @v_id.nil?
       @circuit = Circuit.new
@@ -35,6 +36,8 @@ Quantum::App.controllers :circuits do
       # Create a new record based on old one
       @circuit._id = BSON::ObjectId.new
     end
+
+    @circuit.uid = current_user.uid
 
     # Set the version id to one higher
     @circuit.v_id = Circuit.new_v_id(@c_id)

@@ -35,7 +35,7 @@
               <ul class="nav navbar-nav">
                 <%= nav_link 'Home', url_for(:pages, :home) %>
                 <%= nav_link 'About', url_for(:pages, :about) %>
-                <%= nav_link 'Circuits', url_for(:circuits, :show) %>
+                <%= nav_link 'Circuits', url_for(:circuits, :show), true %>
               </ul>
               <ul class="nav navbar-nav navbar-right">
                 <% if signed_in? %>
