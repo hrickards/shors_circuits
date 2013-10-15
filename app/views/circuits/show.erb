@@ -1,67 +1,100 @@
 <% content_for :head do %>
   <%= javascript_include_tag 'circuits' %>
-  <%= stylesheet_link_tag 'flick/jquery-ui' %>
+  <%# stylesheet_link_tag 'flick/jquery-ui' %>
 <% end %>
 <div id="sidebar">
-  <select id="operatorType">
+  <select id="operatorType" class="selectpicker">
     <option value="gate">Gate</option>
     <option value="measurement">Measurement</option>
     <option value="controlled">Controlled Gate</option>
   </select>
 
-  <select id="operatorId">
+  <select id="operatorId" class="selectpicker">
   </select>
 
   <ul id="controlLinks">
-    <li><a id="add" href="#">Add</a></li>
-    <li><a id="move" href="#">Move</a></li>
-    <li><a id="delete" href="#">Delete</a></li>
-    <li><a id="run" href="#">Run</a></li>
-    <li><a id="save" href="#">Save</a></li>
-    <li><a id="addLine" href="#">Add Line</a></li>
-    <li><a id="deleteLine" href="#">Delete Line</a></li>
-    <li><a id="newOperator" href="#">New Operator</a></li>
+    <div class="btn-toolbar">
+      <button id="add" href="#" title="Add" class="btn btn-default">A</button>
+      <button id="move" href="#" title="Move" class="btn btn-default"><span class="glyphicon glyphicon-move"></span></button>
+      <button id="delete" href="#" title="Delete" class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
+    </div>
+    <div class="btn-toolbar">
+      <button id="run" href="#" title="Run" class="btn btn-default"><span class="glyphicon glyphicon-play"></span></button>
+      <button id="save" href="#" title="Save" class="btn btn-default"><span class="glyphicon glyphicon-save"></span></button>
+    </div>
+    <div class="btn-toolbar">
+      <button id="addLine" href="#" title="Add Line" class="btn btn-default">L</button>
+      <button id="deleteLine" href="#" title="Delete Line" class="btn btn-default">D</button>
+      <button id="newOperator" href="#" title="New Operator" class="btn btn-default">O</button>
+    </div>
   </ul>
 
-  <div id="iterations">
+  <div id="iterationsContainer">
+    <div id="iterations">
+      <h3>Iterations:</h3>
+      <ul class="nav nav-pills nav-stacked" id="navIterations">
+      </ul>
+    </div>
   </div>
 </div>
-<div id="newOperatorForm">
-  <form>
-    <fieldset>
-      <label for="name">Name</label>
-      <input type="text" name="name" id="name" class="ui-widget-content ui-corner-all" />
-
-      <label for="symbol">Symbol</label>
-      <input type="text" name="symbol" id="symbol" class="ui-widget-content ui-corner-all" />
-
-      <label for="type">Type</label>
-      <select name="type" id="type" class="ui-widget-content ui-corner-all">
-        <option value="gate">Gate</option>
-        <option value="measurement">Measurement</option>
-        <option value="controlled">Controlled Gate</option>
-      </select>
-
-      <label for="size">Size</label>
-      <input type="number" name="size" id="size" class="ui-widget-content ui-corner-all" />
-
-      <label for="matrix">Matrix</label>
-      <table id="matrix">
-      </table>
-    </fieldset>
-  </form>
+<div id="newOperatorModal">
+  <div id="newOperatorForm" class="panel panel-default">
+    <button type="button" class="close closeOperator"><span class="glyphicon glyphicon-remove-circle"></span></button>
+    <div class="panel-heading">
+      <h3 class="panel-title">New Operator</h3>
+    </div>
+    <div class="panel-body">
+      <form>
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" name="name" id="name" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label for="symbol">Symbol</label>
+          <input type="text" name="symbol" id="symbol" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label for="type">Type</label>
+          <select name="type" id="type" class="form-control">
+            <option value="gate">Gate</option>
+            <option value="measurement">Measurement</option>
+            <option value="controlled">Controlled</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="size">Size</label>
+          <input type="number" name="size" id="size" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label for="matrix">Matrix</label>
+          <table id="matrix">
+          </table>
+        </div>
+        <button type="button" class="btn btn-success" id="newOperatorSubmit">Submit</button>
+        <button type="button" class="btn btn-warning closeOperator">Cancel</button>
+      </form>
+    </div>
+  </div>
 </div>
-<div id="resultsContainer" title="Simulation Results">
-  <div id="inspectMessage">
-    Click somewhere to inspect the circuit
+<div id="resultsContainer" class="panel panel-default">
+  <button type="button" class="close closeResults"><span class="glyphicon glyphicon-remove-circle"></span></button>
+  <div class="panel-heading">
+    <h3 class="panel-title">Simulation Results</h3>
   </div>
-  <div id="results">
-  </div>
-  <div id="measurementsContainer">
+  <div class="panel-body">
+    <div id="inspectMessage" class="alert alert-info">
+      Click somewhere to inspect the circuit
+    </div>
+    <div id="results">
+    </div>
+    <div id="measurementsContainer">
+    </div>
   </div>
 </div>
 <div id="content">
-  <input id="initialState" placeholder="Initial state">
+  <div class="form-group">
+    <input id="initialState" placeholder="Initial state" class="form-control">
+  </div>
   <div id="canvasContainer">
   </div>
 </div>

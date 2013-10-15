@@ -1,9 +1,12 @@
 @import "compass";
 @import "compass/reset";
 
+@import "bootstrap";
+
 @import "susy";
 // Susy config
 @import "partials/susy";
+@import "bootstrap-select";
 
 $content-font: "proxima-nova", sans-serif;
 
@@ -22,7 +25,7 @@ div, nav { @include box-sizing(border-box); }
   font-family: $content-font;
 
   #header {
-    @include span-columns(12, 12);
+    //@include span-columns(12, 12);
     height: 1.6em;
     padding: 0.3em;
 
@@ -31,22 +34,31 @@ div, nav { @include box-sizing(border-box); }
   }
 
   #sidebar {
-    @include span-columns(3, 12);
+    //@include span-columns(3, 12);
     height: 97%;
+    width: 15em;
     padding: 0.3em;
+    position: absolute;
 
     background: #191818;
     color: #999;
 
     select { width: 100%; }
+    padding-left: 5px;
 
     #iterations {
+      width: 10em;
       .current { font-weight: bold; }
     }
+
+    //#iterationsContainer { margin-left: 5px; }
+
+    #navIterations { margin-left: 10px; }
   }
 
   #content {
-    @include span-columns(9 omega, 12);
+    //@include span-columns(9 omega, 12);
+    margin-left: 15em;
     padding: 0.3em;
   }
 
@@ -58,4 +70,43 @@ div, nav { @include box-sizing(border-box); }
   }
 }
 
+#navbar { margin-bottom: 0 }
+ 
+#controlLinks .btn-toolbar {
+  margin: 5px 0;
+}
+
 .matrixInputBox { width: 30px }
+
+#initialState { width: 20em; }
+
+// http://www.webdesignerdepot.com/2012/10/creating-a-modal-window-with-html5-and-css3/
+#newOperatorModal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 99999;
+  -webkit-transition: opacity 400ms ease-in;
+  -moz-transition: opacity 400ms ease-in;
+  transition: opacity 400ms ease-in;
+}
+
+#newOperatorForm {
+  width: 600px;
+  position: relative;
+  margin: 10% auto;
+}
+
+#resultsContainer {
+  width: 500px;
+  height: 400px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 99998;
+  margin-left: 20px;
+  margin-right: 20px;
+}

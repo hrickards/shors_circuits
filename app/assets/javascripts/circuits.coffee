@@ -220,8 +220,10 @@ setMode = (mode) ->
     removeResults()
     hideResultsContainer()
     @oldOpmId = undefined
-  $("#controlLinks > li > a").removeClass("active")
-  $("#controlLinks > li > #" + mode).addClass("active")
+  $("#controlLinks button").removeClass("btn-primary")
+  $("#controlLinks button").addClass("btn-default")
+  $("#controlLinks #" + mode).removeClass("btn-default")
+  $("#controlLinks #" + mode).addClass("btn-primary")
   @mode = mode
 
 getMode = ->
@@ -280,58 +282,55 @@ bindLinkClick = ->
   $('#newOperator').on('click', -> newOperator(); return false)
 
 newOperator = ->
-  $('#newOperatorForm').dialog("open")
+  $('#newOperatorModal').show()
+
+closeNewOperatorForm = ->
+  $('#newOperatorModal').hide()
+  $('#name').val('')
+  $('#symbol').val('')
+  $('#type').prop('selectedIndex', 0)
+  $('#size').val('')
+  @matrixInput.render()
 
 setupNewOperatorForm = ->
-  $('#newOperatorForm').dialog({
-    autoOpen: false
-    height: 300
-    width: 350
-    modal: true
-    buttons:
-      "Submit": =>
-        data = {
-          name: $("#name").val()
-          symbol: $("#symbol").val()
-          type: $("#type").val()
-          size: parseInt($("#size").val())
-          matrix: @matrixInput.value()
-        }
-        $.post('/operators', {operator: JSON.stringify(data)}).done((rData) =>
-          listData = {
-            id: rData['id']
-            name: data['name']
-            size: data['size']
-            symbol: data['symbol']
-            type: data['type']
-          }
-          list =  switch data['type']
-            when "gate" then window.GATES
-            when "measurement" then window.MEASUREMENTS
-            when "controlled" then window.CONTROLLED_GATES
-          list.push(listData)
+  $('#newOperatorSubmit').on('click', ->
+    data = {
+      name: $("#name").val()
+      symbol: $("#symbol").val()
+      type: $("#type").val()
+      size: parseInt($("#size").val())
+      matrix: @matrixInput.value()
+    }
+    $.post('/operators', {operator: JSON.stringify(data)}).done((rData) =>
+      listData = {
+        id: rData['id']
+        name: data['name']
+        size: data['size']
+        symbol: data['symbol']
+        type: data['type']
+      }
+      list =  switch data['type']
+        when "gate" then window.GATES
+        when "measurement" then window.MEASUREMENTS
+        when "controlled" then window.CONTROLLED_GATES
+      list.push(listData)
 
-          # If type already selected, add to dropdown
-          $('#operatorId').append($("<option></option>").attr("value", listData['id']).text(listData['name'])) if data['type'] == operatorType()
-        )
+      # If type already selected, add to dropdown
+      $('#operatorId').append($("<option></option>").attr("value", listData['id']).text(listData['name'])) if data['type'] == operatorType()
+    )
 
-        $('#newOperatorForm').dialog("close")
-      "Cancel": ->
-        $(@).dialog("close")
-    close: =>
-      # Clear form
-      $('#name').val('')
-      $('#symbol').val('')
-      $('#type').prop('selectedIndex', 0)
-      $('#size').val('')
-      @matrixInput.render()
-  })
+    closeNewOperatorForm()
+  )
+  $('.closeOperator').click(->
+    closeNewOperatorForm()
+  )
   @matrixInput = new MatrixInput({
     el: $('#matrix')
     sizeEl: $('#size')
-    class: "ui-widget-content ui-corner-all matrixInputBox"
+    class: "form-control matrixInputBox"
   })
   @matrixInput.render()
+  closeNewOperatorForm()
 
 # Initialises the page with a new stage
 init = ->
@@ -398,7 +397,7 @@ loadCircuit = ->
   )
 
 renderCircuit = (circuit) =>
-  $('#save').text('Update')
+  $('#save').attr('title', 'Update')
   $('#initialState').val(circuit['initial_state'])
 
   @lines.add(circuit['lines'])
@@ -423,20 +422,21 @@ renderCircuit = (circuit) =>
   showIterations(circuit)
 
 showIterations = (circuit) ->
-  html = "<ul>"
+  html = ""
 
   _.each(circuit['iterations'], (iteration) ->
     url = iteration['v_id']
 
-    html += "<li" + (if iteration['current'] then " class='current'" else "") + ">"
-    html += "<a href='" + iteration["url"] + "'>" unless iteration['current']
-    html += iteration['v_id'] + " - " + iteration['modified']
+    html += "<li" + (if iteration['current'] then " class='active'" else "") + "><a href='"
+    if iteration['current']
+      html += "#"
+    else
+      html += iteration["url"]
+    html += "'>" + iteration['v_id'] + " - " + iteration['modified']
     html += "</a>" unless iteration['current']
     html += "</li>"
   )
-
-  html += "</ul>"
-  $('#iterations').html(html)
+  $('#navIterations').html(html)
 
 genHash = ->
   operators = @operators.toArray()
@@ -460,19 +460,17 @@ save = ->
   # )
 
 showResultsContainer = ->
-  $("#resultsContainer").dialog("open")
+  $("#resultsContainer").show()
 
 hideResultsContainer = ->
-  $("#resultsContainer").dialog("close")
+  $("#resultsContainer").hide()
   $("#inspectMessage").show()
 
 setupResultsContainer = ->
-  $("#resultsContainer").dialog({
-    autoOpen: false
-    width: 500
-    height: 400
-    position: ['left', 'bottom']
-  })
+  $('.closeResults').click(->
+    hideResultsContainer()
+  )
+  hideResultsContainer()
 
 run = ->
   # TODO Is this RESTul?
@@ -521,6 +519,9 @@ $(document).ready ->
       $(window).trigger('resizeEnd')
     , 50)
   )
+  $('.selectpicker').selectpicker({
+    width: '13em'
+  })
 
   $(window).on('resizeEnd orientationchange', resize)
 

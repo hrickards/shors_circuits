@@ -15,7 +15,7 @@ class Operator
     @unrenderMeasurementConnection() if @measurement?
     layer.draw() if draw
   highlight: ->
-    @rect.setFill('blue')
+    @rect.setFill('#eee')
   unhighlight: ->
     @rect.setFill('white')
   render: (layer, draw) ->
