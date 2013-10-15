@@ -37,3 +37,5 @@ gem 'padrino-sprockets'
 gem 'sprockets-sass'
 gem 'coffee-script'
 gem 'susy'
+
+gem 'omniauth'

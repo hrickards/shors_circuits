@@ -119,3 +119,7 @@ div, nav { @include box-sizing(border-box); }
 $buttonSpacing: 0.3em;
 .closeButton { margin-top: -$buttonSpacing; }
 .closeTitle { margin-top: $buttonSpacing; }
+
+.dropdown-toggle {
+  min-width: 160px;
+}

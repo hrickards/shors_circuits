@@ -1,3 +1,5 @@
+require_relative '../lib/symbolize'
+
 module Quantum
   class App < Padrino::Application
     register Padrino::Rendering
@@ -8,6 +10,13 @@ module Quantum
     sprockets
 
     enable :sessions
+
+    # https://github.com/tsigo/jugglf/blob/master/config/initializers/juggernaut.rb
+    raw_config = File.read "#{Padrino.root}/config/config.yml"
+    @config = YAML.load(raw_config).recursively_symbolize_keys[Padrino.env]
+
+    # use Rack::Session::Cookie
+    use OmniAuth::Strategies::Developer
 
     ##
     # Caching support
