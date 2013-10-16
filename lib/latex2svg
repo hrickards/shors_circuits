@@ -1,4 +1,8 @@
 #!/bin/sh
+
+# Converts a latex file into an SVG
+# First argument should be the path of the latex file
+
 cd /tmp
 # Compile the tex into a PDF
 pdflatex -interaction=batchmode "$1.tex" 

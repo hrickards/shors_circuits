@@ -1,9 +1,9 @@
 Quantum::App.controllers :circuits do
   before do
     c_id = params[:c_id]
-    @c_id = c_id.nil? ? nil : c_id.to_i
+    @c_id = (c_id.nil? or c_id.empty?) ? nil : c_id.to_i
     v_id = params[:v_id]
-    @v_id = v_id.nil? ? nil : v_id.to_i
+    @v_id = (v_id.nil? or v_id.empty?) ? nil : v_id.to_i
   end
 
   get :index, :map => '/my_circuits', :provides => :html do

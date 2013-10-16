@@ -1,0 +1,44 @@
+operators: [
+  {
+    name: CNOT,
+    symbol: CNOT,
+    size: 2,
+    type: gate,
+    matrix: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]
+  },
+  {
+    name: Hadamard,
+    symbol: H,
+    size: 1,
+    type: gate,
+    matrix: [[1/sqrt(2), 1/sqrt(2)], [1/sqrt(2), -1/sqrt(2)]]
+  },
+  {
+    name: Pauli X,
+    symbol: X,
+    size: 1,
+    type: gate,
+    matrix:  [[0, 1], [1, 0]]
+  },
+  {
+    name: Pauli Y,
+    symbol: Y,
+    size: 1,
+    type: gate,
+    matrix:  [[0, -i], [i, 0]]
+  },
+  {
+    name: Pauli Z,
+    symbol: Z,
+    size: 1,
+    type: gate,
+    matrix:  [[1, 0], [0, -1]]
+  },
+  {
+    name: Standard Basis,
+    symbol: M,
+    size: 1,
+    type: measurement,
+    matrix: [[1, 0], [0, -1]]
+  }
+]

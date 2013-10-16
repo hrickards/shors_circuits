@@ -142,8 +142,8 @@ removeResults = ->
 showMeasurementResults = (oId) ->
   results = @measurementResultsData[oId]
   keys = _.keys(results)
-  labels = _.map(keys, (key) -> key + " wp %%")
-  values = _.map(keys, (key) -> results[key])
+  labels = _.map(keys, (key) -> key + " wp " + results[key][0])
+  values = _.map(keys, (key) -> results[key][1])
 
   unless @r?
     cont = $('#measurementsContainer')
