@@ -1,10 +1,5 @@
 # Controller for omniauth authentication
 Quantum::App.controllers :auth do
-  # TODO TODO TODO TODO TODO
-  # Change this --- we don't want to enable csrf
-  set :protect_from_csrf, false
-  set :allow_disabled_csrf, false
-
   # Called after a successful login
   callback = lambda do
     omniauth = request.env["omniauth.auth"]

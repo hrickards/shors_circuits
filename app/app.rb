@@ -18,7 +18,6 @@ module Quantum
  
     # use OmniAuth::Strategies::Developer
     use OmniAuth::Builder do
-      provider :developer if ENV["PADRINO_ENV"] == "development"
       provider :google_oauth2, config["GOOGLE_ID"], config["GOOGLE_SECRET"],
         {
           name: "google"
