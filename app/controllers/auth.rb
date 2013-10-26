@@ -5,21 +5,38 @@ Quantum::App.controllers :auth do
   set :protect_from_csrf, false
   set :allow_disabled_csrf, false
 
-  # Called after a successful developer-protocol (ie just entering name
-  # and email address) login
-  post :developer_callback, :map => '/auth/developer/callback' do
+  # Called after a successful login
+  callback = lambda do
     omniauth = request.env["omniauth.auth"]
 
+    if session[:uid]
+      # If user is currently signed in, add new authorization to the
+      # user
+      User.find_by_uid(session[:uid]).add_provider(omniauth)
+
+      # Redirect to home
+      flash[:notice] =
+        "You can now login using #{omniauth["provider"].capitalize}."
+      redirect_to url_for(:pages, :home)
+    else
+      # Otherwise find existing user or create one if one doesn't exist
+      @user = User.find_or_create omniauth
+
+      # Save user id to session
+      session[:uid] = @user.uid
+
+      # Redirect to home
+      flash[:notice] = "Successfully logged in."
+      redirect_to url_for(:pages, :home)
+    end
+
     # Create new user from ommiauth info if one doesn't exist
-    @user = User.find_by_uid omniauth['uid']
+    @user = User.find_by_uid_and_provider omniauth['uid'], omniauth["provider"]
     @user = User.new_from_omniauth omniauth if @user.nil?
-
-    # Save user id to session
-    session[:uid] = omniauth['uid']
-
-    # Redirect to home
-    redirect_to url_for(:pages, :home)
   end
+  # Run on post & get. SO 8414395
+  post :callback, :map => '/auth/:provider/callback', &callback
+  get :callback, :map => '/auth/:provider/callback', &callback
 
   # Signout
   get :signout, :map => 'auth/signout' do
@@ -27,6 +44,14 @@ Quantum::App.controllers :auth do
     session[:uid] = nil
 
     # Redirect to home
+    flash[:notice] = "Successfully logged out."
+    redirect_to url_for(:pages, :home)
+  end
+
+  # Called after a failed login
+  post :failure, :map => '/auth/failure' do
+    # Redirect back home
+    flash[:error] = "Authentication error!"
     redirect_to url_for(:pages, :home)
   end
 end

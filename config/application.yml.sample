@@ -1,0 +1,11 @@
+development:
+  GOOGLE_ID: 
+  GOOGLE_SECRET:
+  GITHUB_ID:
+  GITHUB_SECRET:
+
+production:
+  GOOGLE_ID:
+  GOOGLE_SECRET: 
+  GITHUB_ID: 
+  GITHUB_SECRET: 

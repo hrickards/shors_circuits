@@ -2,6 +2,7 @@
 
 @import "bootstrap";
 @import "font-awesome";
+@import "zocial";
 
 @import "susy";
 // Susy config
@@ -135,3 +136,21 @@ $buttonSpacing: 0.3em;
 }
 
 #newCircuitButton { float: right; }
+
+a.zocial {
+  font-weight: bold !important;
+  line-height: 1.8em !important;
+  margin: 1px 5px;
+  padding: 0 10px 0 0 !important;
+}
+
+a.google, a.primary {
+  color: #fff !important;
+}
+
+li.nohover :hover {
+  background-color: transparent !important;
+  color: black !important;
+}
+
+.alert-top { margin-bottom: 0 !important; }

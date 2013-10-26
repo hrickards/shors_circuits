@@ -1,21 +1,48 @@
 # See http://armoredcode.com/blog/crafting-an-authentication-subsystem-that-rocks-for-your-padrino-application-with-omniauth/
+# and http://net.tutsplus.com/tutorials/ruby/how-to-use-omniauth-to-authenticate-your-users/
 class User
   include MongoMapper::Document
 
   # key <name>, <type>
-  key :uid, String
   key :name, String
   key :email, String
+  key :uid, String
+
+  many :authorizations
 
   timestamps!
 
-  def self.new_from_omniauth(omniauth)
-    user = User.new
-    user.uid = omniauth["uid"]
-    user.name = omniauth["info"]["name"]
-    user.email = omniauth["info"]["email"]
+  def add_provider(omniauth)
+    unless self.authorizations.find_by_provider(omniauth["provider"])
+      self.authorizations << Authorization.create(
+        provider: omniauth["provider"],
+        uid: omniauth["uid"]
+      )
+      self.save!
+    end
+  end
 
-    user.save!
+  def self.find_or_create(omniauth)
+    auth = Authorization.find_by_provider_and_uid(
+      omniauth["provider"], omniauth["uid"]
+    )
+    if auth
+      user = auth.user
+    else
+      user = User.create_from_omniauth omniauth
+    end
+
+    user
+  end
+
+  def self.create_from_omniauth(omniauth)
+    user = User.create(
+      name: omniauth["info"]["name"],
+      email: omniauth["info"]["email"],
+      uid: omniauth["uid"]
+    )
+    user.add_provider(omniauth)
+
     user
   end
 

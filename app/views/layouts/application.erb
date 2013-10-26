@@ -23,6 +23,15 @@
         <![endif]-->
 
         <div id="page">
+          <%# SO 17931534 %>
+          <% flash.each do |name, msg| %>
+            <% if msg.is_a? String %>
+              <div class="alert-top alert alert-<%= flash_class(name) %>">
+                <a class="close" data-dismiss="alert">&#215;</a>
+                <%= content_tag :div, msg, :id => "flash_#{name}" %>
+              </div>
+            <% end %>
+          <% end %>
           <div id="navbar" class="navbar navbar-default navbar-static-top">
             <div class="navbar-header">
               <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -39,16 +48,22 @@
                 <%= nav_link('Circuits', url_for(:circuits, :index)) { |url| url.include? "circuits" } %>
               </ul>
               <ul class="nav navbar-nav navbar-right">
-                <% if signed_in? %>
-                  <li class="dropdown">
+                <li class="dropdown">
+                  <% if signed_in? %>
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%= current_user.name %> <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                       <li><a href="/auth/signout">Sign out</a></li>
+                      <li class="divider"></li>
+                      <li class="nohover"><a><b>Add method</b></a></li>
+                      <%= partial "auth" %>
                     </ul>
-                  </li>
-                <% else %>
-                  <li><a href="/auth/developer">Sign in</a></li>
-                <% end %>
+                  <% else %>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Sign in <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                      <%= partial "auth" %>
+                    </ul>
+                  <% end %>
+                </li>
               </ul>
             </div>
           </div>

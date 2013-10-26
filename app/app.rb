@@ -1,3 +1,5 @@
+require 'yaml'
+
 module Quantum
   class App < Padrino::Application
     register Padrino::Rendering
@@ -8,9 +10,21 @@ module Quantum
     sprockets
 
     enable :sessions
+    
+    # Open YAML config
+    config = YAML.load_file('config/application.yml')[ENV["PADRINO_ENV"]]
 
     # use Rack::Session::Cookie
-    use OmniAuth::Strategies::Developer
+ 
+    # use OmniAuth::Strategies::Developer
+    use OmniAuth::Builder do
+      provider :developer if ENV["PADRINO_ENV"] == "development"
+      provider :google_oauth2, config["GOOGLE_ID"], config["GOOGLE_SECRET"],
+        {
+          name: "google"
+        }
+      provider :github, config["GITHUB_ID"], config["GITHUB_SECRET"]
+    end
 
     # Rate limiting for running circuits
     use Rack::Throttle::IntervalRuns, :min => 10.0 # max 1 request per 10 seconds
