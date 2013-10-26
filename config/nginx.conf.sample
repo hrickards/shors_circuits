@@ -1,5 +1,5 @@
 upstream shorscircuits.com {
-	server unix:///home/harry/shors_circuits/tmp/puma/sock fail_timeout=0;
+	server unix:///home/harry/shors_circuits/current/tmp/puma/sock fail_timeout=0;
 }
 
 server {

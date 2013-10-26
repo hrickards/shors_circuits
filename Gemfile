@@ -29,5 +29,10 @@ gem 'bson_ext', require: 'mongo'
 gem 'mongo_mapper'
 
 group :production do
-  gem 'puma'                                          # Server
+  gem 'puma', require: false                          # Server
+end
+
+group :development do
+  # Deployment scripts
+  gem 'capistrano', '~>3.0.0', require: false
 end
