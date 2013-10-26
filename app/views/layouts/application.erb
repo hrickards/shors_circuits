@@ -3,71 +3,89 @@
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>Quantum</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width">
-        <link rel="shortcut icon" href="favicon.ico"/>
+  <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Quantum</title>
+      <meta name="description" content="">
+      <meta name="viewport" content="width=device-width">
+      <link rel="shortcut icon" href="favicon.ico"/>
 
-        <%= csrf_meta_tags %>
+      <%= csrf_meta_tags %>
 
-        <%= stylesheet_link_tag 'application' %>
-        <%= javascript_include_tag 'application' %>
-        <%= yield_content :head if content_for? :head %>
-    </head>
-    <body>
-        <!--[if lt IE 7]>
-            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
-        <![endif]-->
+      <%= stylesheet_link_tag 'application' %>
+      <%= javascript_include_tag 'application' %>
+      <%= yield_content :head if content_for? :head %>
+  </head>
+  <body>
+    <!--[if lt IE 7]>
+        <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+    <![endif]-->
 
-        <div id="page">
-          <%# SO 17931534 %>
-          <% flash.each do |name, msg| %>
-            <% if msg.is_a? String %>
-              <div class="alert-top alert alert-<%= flash_class(name) %>">
-                <a class="close" data-dismiss="alert">&#215;</a>
-                <%= content_tag :div, msg, :id => "flash_#{name}" %>
-              </div>
-            <% end %>
-          <% end %>
-          <div id="navbar" class="navbar navbar-default navbar-static-top">
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-              <a class="navbar-brand" href="<%= url_for(:pages, :home) %>">Shor's Circuits</a>
-            </div>
-            <div class="navbar-collapse collapse">
-              <ul class="nav navbar-nav">
-                <%= nav_link 'Home', url_for(:pages, :home) %>
-                <%= nav_link 'About', url_for(:pages, :about) %>
-                <%= nav_link('Circuits', url_for(:circuits, :index)) { |url| url.include? "circuits" } %>
-              </ul>
-              <ul class="nav navbar-nav navbar-right">
-                <li class="dropdown">
-                  <% if signed_in? %>
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%= current_user.name %> <b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                      <li><a href="/auth/signout">Sign out</a></li>
-                      <li class="divider"></li>
-                      <li class="nohover"><a><b>Add method</b></a></li>
-                      <%= partial "auth" %>
-                    </ul>
-                  <% else %>
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Sign in <b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                      <%= partial "auth" %>
-                    </ul>
-                  <% end %>
-                </li>
-              </ul>
-            </div>
+    <div id="page">
+      <%# SO 17931534 %>
+      <% flash.each do |name, msg| %>
+        <% if msg.is_a? String %>
+          <div class="alert-top alert alert-<%= flash_class(name) %>">
+            <a class="close" data-dismiss="alert">&#215;</a>
+            <%= content_tag :div, msg, :id => "flash_#{name}" %>
           </div>
-          <%= yield %>
+        <% end %>
+      <% end %>
+      <div id="navbar" class="navbar navbar-default navbar-static-top">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="<%= url_for(:pages, :home) %>">Shor's Circuits</a>
         </div>
-    </body>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <%= nav_link 'Home', url_for(:pages, :home) %>
+            <%= nav_link 'About', url_for(:pages, :about) %>
+            <%= nav_link('Circuits', url_for(:circuits, :index)) { |url| url.include? "circuits" } %>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+              <% if signed_in? %>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%= current_user.name %> <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="/auth/signout">Sign out</a></li>
+                  <li class="divider"></li>
+                  <li class="nohover"><a><b>Add method</b></a></li>
+                  <%= partial "auth" %>
+                </ul>
+              <% else %>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Sign in <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <%= partial "auth" %>
+                </ul>
+              <% end %>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <%= yield %>
+      <div id="openIdModal">
+        <div id="openIdForm" class="panel panel-default">
+          <div class="panel-heading">
+            <div class="closeButton">
+              <button type="button" class="close closeOpenId"><i class="icon-remove-circle icon-large"></i></button>
+            </div>
+            <h3 class="panel-title closeTitle">Provider</h3>
+          </div>
+          <div class="panel-body">
+            <form role="form" action="/auth/open_id" method="get">
+              <div class="form-group">
+                <input type="text" class="form-control" id="provider" name="openid_url">
+              </div>
+              <button type="submit" class="btn btn-primary" id="openIdSubmit">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>

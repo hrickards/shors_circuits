@@ -86,7 +86,7 @@ div, nav { @include box-sizing(border-box); }
 #initialState { width: 20em; }
 
 // http://www.webdesignerdepot.com/2012/10/creating-a-modal-window-with-html5-and-css3/
-#newOperatorModal {
+#newOperatorModal, #openIdModal {
   position: fixed;
   top: 0;
   right: 0;
@@ -102,6 +102,12 @@ div, nav { @include box-sizing(border-box); }
 
 #newOperatorForm {
   width: 600px;
+  position: relative;
+  margin: 10% auto;
+}
+
+#openIdForm {
+  width: 400px;
   position: relative;
   margin: 10% auto;
 }
@@ -158,4 +164,8 @@ li.nohover :hover {
 #matrixContainer {
   height: 20em;
   overflow: auto;
+}
+
+#openIdSubmit {
+  float: right;
 }

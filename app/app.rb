@@ -1,4 +1,5 @@
 require 'yaml'
+require 'openid/store/filesystem'
 
 module Quantum
   class App < Padrino::Application
@@ -23,6 +24,7 @@ module Quantum
           name: "google"
         }
       provider :github, config["GITHUB_ID"], config["GITHUB_SECRET"]
+      provider :open_id, :store => OpenID::Store::Filesystem.new('/tmp')
     end
 
     # Rate limiting for running circuits

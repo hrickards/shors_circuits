@@ -10,8 +10,9 @@ Quantum::App.controllers :auth do
       User.find_by_uid(session[:uid]).add_provider(omniauth)
 
       # Redirect to home
+      humanised = omniauth["provider"] == :open_id ? "Open ID" : omniauth["provider"].capitalize
       flash[:notice] =
-        "You can now login using #{omniauth["provider"].capitalize}."
+        "You can now login using #{humanised}."
       redirect_to url_for(:pages, :home)
     else
       # Otherwise find existing user or create one if one doesn't exist

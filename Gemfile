@@ -13,6 +13,7 @@ gem 'improved-rack-throttle',
 # Omniauth strategies
 gem 'omniauth-google-oauth2'                          # Google
 gem 'omniauth-github'                                 # Github
+gem 'omniauth-openid'                                 # OpenID
 
 # Templating & CSS
 gem 'compass'
