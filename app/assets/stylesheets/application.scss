@@ -154,3 +154,8 @@ li.nohover :hover {
 }
 
 .alert-top { margin-bottom: 0 !important; }
+
+#matrixContainer {
+  height: 20em;
+  overflow: auto;
+}
