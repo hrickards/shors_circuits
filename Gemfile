@@ -1,9 +1,5 @@
 source 'https://rubygems.org'
 
-# Server requirements
-# gem 'thin' # or mongrel
-# gem 'trinidad', :platform => 'jruby'
-
 gem 'padrino', github: 'padrino/padrino-framework'    # Padrino Edge
 gem 'oj'                                              # Faster JSON
 gem 'rake'
@@ -31,3 +27,7 @@ gem 'sprockets-sass'
 # Mongo
 gem 'bson_ext', require: 'mongo'
 gem 'mongo_mapper'
+
+group :production do
+  gem 'puma'                                          # Server
+end

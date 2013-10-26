@@ -7,6 +7,8 @@ require 'rubygems' unless defined?(Gem)
 require 'bundler/setup'
 Bundler.require(:default, PADRINO_ENV)
 
+OmniAuth.config.full_host = 'http://shorscircuits.com'
+
 ##
 # ## Enable devel logging
 #

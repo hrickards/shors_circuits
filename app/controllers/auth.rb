@@ -49,9 +49,11 @@ Quantum::App.controllers :auth do
   end
 
   # Called after a failed login
-  post :failure, :map => '/auth/failure' do
+  failure = lambda do
     # Redirect back home
     flash[:error] = "Authentication error!"
     redirect_to url_for(:pages, :home)
   end
+  post :failure, :map => '/auth/failure', &failure
+  get :failure, :map => '/auth/failure', &failure
 end
