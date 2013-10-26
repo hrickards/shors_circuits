@@ -1,4 +1,11 @@
 GIT
+  remote: git://github.com/bensomers/improved-rack-throttle.git
+  revision: fe79c727323cf35221675e40dc75cf7dad2afc57
+  specs:
+    improved-rack-throttle (0.7.1)
+      rack (>= 1.0.0)
+
+GIT
   remote: git://github.com/padrino/padrino-framework.git
   revision: 7b8d4d113c9aeb429126d8e8922d054e5ddc8038
   specs:
@@ -73,6 +80,7 @@ GEM
       activesupport (~> 3.0)
       plucky (~> 0.5.2)
     multi_json (1.8.0)
+    oj (2.1.7)
     omniauth (1.1.4)
       hashie (>= 1.2, < 3)
       rack
@@ -122,7 +130,9 @@ DEPENDENCIES
   bson_ext
   coffee-script
   compass
+  improved-rack-throttle!
   mongo_mapper
+  oj
   omniauth
   padrino!
   padrino-sprockets

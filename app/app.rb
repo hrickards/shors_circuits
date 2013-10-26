@@ -12,6 +12,10 @@ module Quantum
     # use Rack::Session::Cookie
     use OmniAuth::Strategies::Developer
 
+    # Rate limiting
+    use Rack::Throttle::Interval, :min => 1.0 # max 1 request per second
+    use Rack::Throttle::Hourly, :max => 1000 # max 100 requests per hour
+
     ##
     # Caching support
     #

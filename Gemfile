@@ -4,11 +4,11 @@ source 'https://rubygems.org'
 # gem 'thin' # or mongrel
 # gem 'trinidad', :platform => 'jruby'
 
-gem 'padrino', :github => 'padrino/padrino-framework' # Padrino Edge
+gem 'padrino', github: 'padrino/padrino-framework' # Padrino Edge
 gem 'oj'                                              # Faster JSON
 gem 'rake'
 gem 'rabl'                                            # JSON templating
-gem 'coffeescript'                                    # CoffeeScript
+gem 'coffee-script'                                    # CoffeeScript
 gem 'omniauth'                                        # Authentication
 
 # Templating & CSS
@@ -22,5 +22,6 @@ gem 'padrino-sprockets'
 gem 'sprockets-sass'
 
 # Mongo
-gem 'bson_ext', :require => 'mongo'
+gem 'bson_ext', require: 'mongo'
 gem 'mongo_mapper'
+gem 'improved-rack-throttle', require: 'rack/throttle', github: 'bensomers/improved-rack-throttle'
