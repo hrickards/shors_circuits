@@ -1,0 +1,18 @@
+upstream shorscircuits.com {
+	server unix:///home/harry/shors_circuits/tmp/puma/sock fail_timeout=0;
+}
+
+server {
+
+	listen   80; ## listen for ipv4
+
+	server_name  shorscircuits.com;
+
+	access_log  /var/log/nginx/shor.access.log;
+	root /home/harry/shors_circuits;
+
+	location / {
+		proxy_pass http://shorscircuits.com;
+		proxy_redirect	off;
+	}
+}
