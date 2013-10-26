@@ -9,7 +9,7 @@ Quantum::App.controllers :circuits do
 
   # List of circuits
   get :index, :map => '/my_circuits', :provides => :html do
-    # Require user to be signed in
+    require_sign_in
     redirect_to url_for(:pages, :home) unless signed_in?
 
     # Get all of the current user's circuits
@@ -53,6 +53,8 @@ Quantum::App.controllers :circuits do
 
   # Update/create a circuit
   put :update, :map => '/circuits(/:c_id)(/:v_id)', :provides => [:json] do
+    require_sign_in
+
     # Require a user to be signed in
     redirect_to url_for(:pages, :home) unless signed_in?
     
@@ -87,6 +89,8 @@ Quantum::App.controllers :circuits do
 
   # Run the circuit data posted
   post :run, :map => '/circuits/run', :provides => [:json] do
+    require_sign_in
+
     circuit = JSON.parse(params["circuit"])
 
     # Create new circuit from the posted data, but don't save it
@@ -102,6 +106,8 @@ Quantum::App.controllers :circuits do
 
   # Run an already-saved circuit
   get :run, :map => '/circuits/:c_id/:v_id/run', :provides => [:json] do
+    require_sign_in
+
     @circuit = Circuit.find_by_c_id_and_v_id @c_id, @v_id
     @results = @circuit.run
 

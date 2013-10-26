@@ -20,6 +20,9 @@
               <a href="<%= url %>">Circuit <%= circuit.c_id %>.<%= circuit.v_id %></a>
             </li>
           <% end %>
+          <% if @circuits.empty? %>
+            You don't appear to have any circuits yet! Would you like to <a href="<%= url_for(:circuits, :show) %>">create one</a>?
+          <% end %>
         </ul>
       </div>
     </div>

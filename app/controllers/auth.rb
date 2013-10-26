@@ -35,6 +35,8 @@ Quantum::App.controllers :auth do
 
   # Signout
   get :signout, :map => 'auth/signout' do
+    require_sign_in
+
     # Remove user id from session
     session[:uid] = nil
 

@@ -23,7 +23,8 @@ Quantum::App.controllers :operators do
   end
 
   post :new, :map => '/operators', :provides => :json do
-    redirect_to url_for(:pages, :home) unless signed_in?
+    require_sign_in
+
     operator = Operator.create JSON.parse(params[:operator])
     operator.uid = current_user.uid
     operator.default = false
