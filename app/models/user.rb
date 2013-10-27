@@ -22,6 +22,10 @@ class User
     end
   end
 
+  def authenticated_with?(provider)
+    not self.authorizations.detect { |auth| auth.provider == provider.to_s}.nil?
+  end
+
   def self.find_or_create(omniauth)
     auth = Authorization.find_by_provider_and_uid(
       omniauth["provider"], omniauth["uid"]
