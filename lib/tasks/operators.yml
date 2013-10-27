@@ -4,7 +4,7 @@ operators: [
     symbol: CNOT,
     size: 2,
     type: gate,
-    matrix: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]
+    matrix: [['1', '0', '0', '0'], ['0', '1', '0', '0'], ['0', '0', '0', '1'], ['0', '0', '1', '0']]
   },
   {
     name: Hadamard,
@@ -18,27 +18,27 @@ operators: [
     symbol: X,
     size: 1,
     type: gate,
-    matrix:  [[0, 1], [1, 0]]
+    matrix:  [['0', '1'], ['1', '0']]
   },
   {
     name: Pauli Y,
     symbol: Y,
     size: 1,
     type: gate,
-    matrix:  [[0, -i], [i, 0]]
+    matrix:  [['0', '-i'], ['i', '0']]
   },
   {
     name: Pauli Z,
     symbol: Z,
     size: 1,
     type: gate,
-    matrix:  [[1, 0], [0, -1]]
+    matrix:  [['1', '0'], ['0', '-1']]
   },
   {
     name: Standard Basis,
     symbol: M,
     size: 1,
     type: measurement,
-    matrix: [[1, 0], [0, -1]]
+    matrix: [['1', '0'], ['0', '-1']]
   }
 ]
