@@ -364,14 +364,12 @@ setupFixedSwitches = (readable, editable) ->
   $("#editableSwitch").bootstrapSwitch()
 
 setupEditableSwitches = (url, readable, editable) ->
-  switchOptions = {
-    setAnimated: false
-  }
-
   $("#switches").html(switchHtmlCode('readable', 'World readable: ', readable, false))
   $("#switches").append(switchHtmlCode('editable', 'World editable: ', editable, false))
-  $("#readableSwitch").bootstrapSwitch(switchOptions)
-  $("#editableSwitch").bootstrapSwitch(switchOptions)
+  $("#readableSwitch").bootstrapSwitch()
+  $("#editableSwitch").bootstrapSwitch()
+  $("#readableSwitch").bootstrapSwitch('setAnimated', false)
+  $("#editableSwitch").bootstrapSwitch('setAnimated', false)
 
   if (url.length > 0)
     $("#readableSwitch").on("switch-change", (e, data) ->
