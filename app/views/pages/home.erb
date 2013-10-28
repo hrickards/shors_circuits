@@ -36,7 +36,7 @@
   <% if signed_in? %>
     <div class="row">
       <div class="col-md-8">
-        Welcome back CHANGE. Would you like to <a href="<%= url_for(:circuits, :index) %>">View Circuits</a> or <a href="<%= url_for(:circuits, :show) %>">Create a Circuit</a>?
+        Welcome back <%= current_user.name.split(" ").first %>. Would you like to <a href="<%= url_for(:circuits, :index) %>">View Circuits</a> or <a href="<%= url_for(:circuits, :show) %>">Create a Circuit</a>?
       </div>
       <div class="col-md-4">
         <div class="panel panel-default" id="userCircuits">
