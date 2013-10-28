@@ -24,6 +24,7 @@ Quantum::App.controllers :circuits do
         @circuit = Circuit.new.ensure_values
       else
         @circuit = Circuit.find_or_create_by_c_id_and_v_id(@c_id, @v_id).ensure_values
+        halt 403 unless (signed_in? and @circuit.created_by?(current_user)) or @circuit.world_readable
       end
       # Work out the url for each circuit iteration
       @iterations = @circuit.iterations.map do |i|
@@ -31,7 +32,7 @@ Quantum::App.controllers :circuits do
         i
       end
       @iterations.sort_by! { |c| c[:v_id] }
-      @can_modify_name = signed_in? ? @circuit.created_by?(current_user) : false
+      @can_change_settings = signed_in? ? @circuit.created_by?(current_user) : false
       render 'circuits/show.rabl'
     else
       # JS circuit viewer/editor
@@ -52,6 +53,21 @@ Quantum::App.controllers :circuits do
     {'status' => 'successful'}.to_json
   end
 
+  # Change world readability/editability of circuit
+  post :change_switches, :map => '/circuits/:c_id/:v_id/switches', :provides => [:json] do
+    require_sign_in
+
+    @circuit = Circuit.find_by_c_id_and_v_id @c_id, @v_id
+    halt 403 unless @circuit.created_by?(current_user)
+
+    readable = params["readable"]
+    editable = params["editable"]
+    @circuit.change_world_readable readable unless readable.nil?
+    @circuit.change_world_editable editable unless editable.nil?
+
+    {'status' => 'successful'}.to_json
+  end
+
   # Update/create a circuit
   put :update, :map => '/circuits(/:c_id)(/:v_id)', :provides => [:json] do
     require_sign_in
@@ -67,6 +83,7 @@ Quantum::App.controllers :circuits do
       @circuit.c_id = @c_id
     else
       @circuit = Circuit.find_by_c_id_and_v_id @c_id, @v_id
+      halt 403 unless (signed_in? and @circuit.created_by?(current_user)) or @circuit.world_editable
       # Create a new record based on old one
       @circuit._id = BSON::ObjectId.new
     end
@@ -82,7 +99,11 @@ Quantum::App.controllers :circuits do
     %w{operators lines initial_state}.each { |k| @circuit[k] = circuit[k] }
     @circuit.save
     
-    @circuit.change_name circuit['name'] if @circuit.created_by?(current_user)
+    if @circuit.created_by? current_user
+      @circuit.change_name circuit['name']
+      @circuit.change_world_readable circuit['world_readable']
+      @circuit.change_world_editable circuit['world_editable']
+    end
 
     {
       'status' => 'successful',
@@ -112,6 +133,7 @@ Quantum::App.controllers :circuits do
     require_sign_in
 
     @circuit = Circuit.find_by_c_id_and_v_id @c_id, @v_id
+    halt 403 unless (signed_in? and @circuit.created_by?(current_user)) or @circuit.world_readable
     @results = @circuit.run
 
     @results.to_json

@@ -9,6 +9,9 @@ class Circuit
   key :initial_state, String
   key :name, String
 
+  key :world_editable, Boolean
+  key :world_readable, Boolean
+
   key :c_id, Integer
   key :v_id, Integer
 
@@ -19,7 +22,9 @@ class Circuit
   def ensure_values
     @lines = 2 if @lines.nil?
     @operators = [] if @operators.nil?
-    @title = ""
+    @name = "" if @name.nil?
+    @world_editable = true if @world_editable.nil?
+    @world_readable = true if @world_readable.nil?
     return self
   end
 
@@ -102,10 +107,22 @@ class Circuit
 
   # Change the name of this circuit and all others with the same c_id
   def change_name(name)
+    self.change_all_attribute(name, 'name')
+  end
+
+  def change_world_readable(readable)
+    self.change_all_attribute(readable, 'world_readable')
+  end
+
+  def change_world_editable(editable)
+    self.change_all_attribute(editable, 'world_editable')
+  end
+
+  def change_all_attribute(value, attribute)
     circuits = self.class.find_all_by_c_id(@c_id)
     circuits = [self] if circuits.nil?
     circuits.each do |circuit|
-      circuit.name = name
+      circuit[attribute] = value
       circuit.save
     end
   end

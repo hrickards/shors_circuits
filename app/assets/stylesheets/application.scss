@@ -10,6 +10,7 @@
 @import "partials/susy";
 @import "bootstrap-select";
 @import "bootstrap-editable";
+@import "bootstrap-switch";
 
 $content-font: "proxima-nova", sans-serif;
 
@@ -204,4 +205,12 @@ li.nohover :hover {
 
 #pageContainer {
   padding-bottom: 20px;
+}
+
+#switches {
+  margin-top: 5px;
+}
+
+.switchRow {
+  text-align: right;
 }

@@ -6,6 +6,8 @@
 //= require vendor/g.raphael
 //= require vendor/g.pie
 //= require vendor/bootstrap-editable
+//= require vendor/bootstrap-switch
+//= require vendor/bootstrap-select
 //= require Collection
 //= require Line
 //= require Operator
@@ -275,9 +277,9 @@ deleteLine = ->
 
 flashMessage = (text, type) ->
   alert = $('<div class="alert-top alert alert-' + type + ' login' + type + '"><a class="close">&#215;</a>' + text + '</div>').hide()
-  if ($('#flash > .loginWarning').length)
-    $('#flash > .loginWarning').slideUp('slow', ->
-      $('#flash > .loginWarning').remove()
+  if ($('#flash > .login' + type).length)
+    $('#flash > .login' + type).slideUp('slow', ->
+      $('#flash > .login' + type).remove()
       alert.appendTo('#flash').slideDown('slow')
     )
   else
@@ -346,6 +348,44 @@ setupNewOperatorForm = ->
   @matrixInput.render()
   closeNewOperatorForm()
 
+switchHtmlCode = (id, text, checked, disabled) ->
+  html  = '<div class="switchRow">' + text
+  html += '<div id="' + id + 'Switch" class="make-switch switch-small" data-on="success" data-off="warning">'
+  html += '<input type="checkbox"'
+  html += ' checked' if checked
+  html += ' disabled' if disabled
+  html += '></div></div>'
+  return html
+
+setupFixedSwitches = (readable, editable) ->
+  $("#switches").html(switchHtmlCode('readable', 'World readable: ', readable, true))
+  $("#switches").append(switchHtmlCode('editable', 'World editable: ', editable, true))
+  $("#readableSwitch").bootstrapSwitch()
+  $("#editableSwitch").bootstrapSwitch()
+
+setupEditableSwitches = (url, readable, editable) ->
+  switchOptions = {
+    setAnimated: false
+  }
+
+  $("#switches").html(switchHtmlCode('readable', 'World readable: ', readable, false))
+  $("#switches").append(switchHtmlCode('editable', 'World editable: ', editable, false))
+  $("#readableSwitch").bootstrapSwitch(switchOptions)
+  $("#editableSwitch").bootstrapSwitch(switchOptions)
+
+  if (url.length > 0)
+    $("#readableSwitch").on("switch-change", (e, data) ->
+      updateSwitch('readable', data.value, url)
+    )
+    $("#editableSwitch").on("switch-change", (e, data) ->
+      updateSwitch('editable', data.value, url)
+    )
+
+updateSwitch = (key, value, url) ->
+  data = {}
+  data[key] = value
+  $.post(url, data)
+
 setupFixedName = (name) ->
   $('#circuitName').text(name)
 
@@ -409,6 +449,7 @@ bootstrap = (func) ->
 
 setupNewCircuit = ->
   setupEditableName('', 'Untitled Circuit')
+  setupEditableSwitches('', true, false)
   $('#iterations').hide()
   @lines.add(3)
   @lines.render(@linesLayer)
@@ -431,16 +472,26 @@ dataPath = (infix) ->
 loadCircuit = ->
   $.get(dataPath()).done((data) =>
     renderCircuit(data['circuit'])
+  ).error( ->
+    flashMessage("You don't have permission to access that circuit! If this is your circuit, make sure you're logged in.", 'danger')
   )
 
 renderCircuit = (circuit) =>
   $('#save').attr('title', 'Update')
   $('#initialState').val(circuit['initial_state'])
 
-  if(circuit['can_modify_name'])
+  if(circuit['can_change_settings'])
     setupEditableName(dataPath('/name'), circuit['name'])
+    setupEditableSwitches(dataPath('/switches'), circuit['world_readable'], circuit['world_editable'])
   else
     setupFixedName(circuit['name'])
+    setupFixedSwitches(circuit['world_readable'], circuit['world_editable'])
+
+  unless circuit['world_editable'] or circuit['can_change_settings']
+    $("#save").attr("id", "usave")
+    $('#usave').off('click')
+    $('#usave').on('click', -> flashMessage("You don't have permission to do that!", 'danger'); return false)
+
 
   @lines.add(circuit['lines'])
   @lines.render(linesLayer)
@@ -487,6 +538,8 @@ genHash = ->
     lines: @lines.count()
     initial_state: $('#initialState').val()
     name: $('#circuitName').text()
+    world_readable: $('#readableSwitch').bootstrapSwitch('status')
+    world_editable: $('#editableSwitch').bootstrapSwitch('status')
   }
   return hash
 
