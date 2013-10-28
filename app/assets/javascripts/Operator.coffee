@@ -1,6 +1,6 @@
 class Operator
   constructor: (@id, @lines, @x, @y, @operatorType, @operatorId, @symbol, @size, @measurement) ->
-    @width = 50
+    @width = 40 + 10*@symbol.length
     @height = 50 * size
   changePosition: (x, y) ->
     # setPosition not working, presumably due to 0 width and height on group

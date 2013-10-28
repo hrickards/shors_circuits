@@ -74,7 +74,7 @@ class Circuit
   end
 
   def self.new_c_id
-    (self.all.map { |doc| doc.c_id }.max || 0) + 1
+    (self.all.map { |doc| doc.c_id }.reject(&:nil?).max || 0) + 1
   end
 
   def iterations

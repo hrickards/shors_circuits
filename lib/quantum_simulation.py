@@ -1,11 +1,15 @@
 #!/usr/bin/python
 # Import the necessary libraries. Main one is sympy, which does all the
 # heavy lifting.
-from sympy import Matrix, eye, sqrt, latex
+from sympy import Matrix, eye, sqrt, latex, I
 from sympy.physics.quantum import TensorProduct
 from numpy import binary_repr
 from sympy.parsing.sympy_parser import parse_expr
 import pipes, json, sys, urllib, re, itertools
+
+# Parse a string into a sympy expression, allowing i for the imaginary unit
+def custom_parse_expr(expr):
+    return parse_expr(expr).subs('i', I)
 
 # Parse a matrix (given as an array of arrays of strings) into a sympy matrix
 def parse_matrix(matrix):
@@ -15,7 +19,7 @@ def parse_matrix(matrix):
         for j in range(len(matrix[i])):
             # Parse an expression like "1/sqrt(2)", and turn it into a sympy
             # value
-            matrix[i][j] = parse_expr(matrix[i][j])
+            matrix[i][j] = custom_parse_expr(matrix[i][j])
     
     # Return a 'sympified' version of the matrix
     return Matrix(matrix)
@@ -51,7 +55,7 @@ def parse_ket_string(ket_string, size):
             if coeff == "" or coeff == "-" or coeff == "+": coeff += "1"
             
             # Parse the coefficient
-            parsed_coeff = parse_expr(coeff)
+            parsed_coeff = custom_parse_expr(coeff)
 
             # Take the numeric part inside the ket, e.g. 00 inside |00>
             # and parse it from a binary to a decimal integer, giving us
@@ -61,7 +65,7 @@ def parse_ket_string(ket_string, size):
 
             # Add on the coefficient to the relevant location inside the
             # state vector
-            state_array += index
+            state_array[index] += parsed_coeff
 
             # Reset coefficient
             coeff = ""
@@ -106,7 +110,8 @@ def conditional_list_to_probabilities(lis):
 def format_probabilities(h1):
     h2 = {}
     for key in h1.keys():
-        v = h1[key]
+        v = h1[key].simplify()
+        sys.stderr.write(str(v))
         h2[str(key)] = [str(v), float(v)]
     return h2
 
@@ -196,7 +201,7 @@ class Controlled(Operator):
         # For each value => matrix
         for (value, matrix) in data['matrices'].iteritems():
             # Parse both, and store in self.matrices
-            value = parse_expr(value)
+            value = custom_parse_expr(value)
             matrix = parse_matrix(matrix)
             self.matrices[value] = matrix
 
@@ -411,7 +416,7 @@ class QuantumSimulation:
         value = filter(lambda val: val == value, gate.values)[0]
         # Find the matrix corresponding to that value
         # TODO Do we need both the parse_expr.str and the filter expression?
-        small_matrix = gate.matrices[parse_expr(str(value))]
+        small_matrix = gate.matrices[custom_parse_expr(str(value))]
 
         # Use the same logic as in apply_gate and apply_measurement to tensor
         # together a large matrix we can apply to all lines
