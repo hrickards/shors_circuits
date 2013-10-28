@@ -1,33 +1,89 @@
 <div class="container" id="pageContainer">
-  <div class="jumbotron">
-    <h1>Welcome...</h1>
-    <p>Explanatory text about Shor's Circuits here</p>
-    <p><a class="btn btn-primary btn-lg" href="<%= url_for(:pages, :about) %>">Learn more</a></p>
+  <div class="jumbotron" id="newJumbotron">
+    <div class="row">
+      <div class="col-md-8">
+        <h1>Quantum Circuit Simulation</h1>
+        <div class="row">
+          <div class="col-md-4">
+            <ul>
+              <li>Schematic Drawing</li>
+              <li>Symbolic Simulation</li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <ul>
+              <li>Collaboration</li>
+              <li>Free and easy to use</li>
+            </ul>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-10">
+          </div>
+          <div class="col-md-2">
+            <p><a class="btn btn-primary btn-xlarge rightButton" href="<%= url_for(:circuits, :show) %>">Create Circuit</a></p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 noOverlap">
+        <a href="#" class="thumbnail">
+          <img data-src="holder.js/100%x180" alt="...">
+        </a>
+      </div>
+    </div>
   </div>
 
-  Put some more things here
-
   <% if signed_in? %>
-    <div class="panel panel-default" id="userCircuits">
-      <div class="panel-heading">
-        <h3 class="panel-title">My Circuits</h3>
+    <div class="row">
+      <div class="col-md-8">
+        Welcome back CHANGE. Would you like to <a href="<%= url_for(:circuits, :index) %>">View Circuits</a> or <a href="<%= url_for(:circuits, :show) %>">Create a Circuit</a>?
       </div>
-      <div class="panel-body">
-        <ul class="nav nav-pills nav-stacked">
-          <% @circuits.each do |cid, circuits, modified| %>
-            <li>
-              <%= circuits.first.name %>
-              <ul id="horizontalCircuitIterations">
-                <% circuits.each do |circuit| %>
-                  <li><a href="<%= url_for(:circuits, :show, :c_id => cid, :v_id => circuit.v_id) %>"><span class="badge"><%= circuit.v_id %></span></a></li>
-                <% end %>
-              </ul>
-            </li>
-          <% end %>
-          <% if @circuits.empty? %>
-            You don't appear to have any circuits yet! Would you like to <a href="<%= url_for(:circuits, :show) %>">create one</a>?
-          <% end %>
-        </ul>
+      <div class="col-md-4">
+        <div class="panel panel-default" id="userCircuits">
+          <div class="panel-heading">
+            <h3 class="panel-title">My Circuits</h3>
+          </div>
+          <div class="panel-body">
+            <ul class="nav nav-pills nav-stacked">
+              <% @circuits.each do |cid, circuits, modified| %>
+                <li>
+                <%= circuits.first.name %>
+                <ul id="horizontalCircuitIterations">
+                  <% circuits.each do |circuit| %>
+                    <li><a href="<%= url_for(:circuits, :show, :c_id => cid, :v_id => circuit.v_id) %>"><span class="badge"><%= circuit.v_id %></span></a></li>
+                  <% end %>
+                </ul>
+                </li>
+              <% end %>
+              <% if @circuits.empty? %>
+                You don't appear to have any circuits yet! Would you like to <a href="<%= url_for(:circuits, :show) %>">create one</a>?
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="row">
+      <div class="col-sm-6 col-md-3">
+        <a href="#" class="thumbnail">
+          <img data-src="holder.js/100%x180" alt="...">
+        </a>
+      </div>
+      <div class="col-sm-6 col-md-3">
+        <a href="#" class="thumbnail">
+          <img data-src="holder.js/100%x180" alt="...">
+        </a>
+      </div>
+      <div class="col-sm-6 col-md-3">
+        <a href="#" class="thumbnail">
+          <img data-src="holder.js/100%x180" alt="...">
+        </a>
+      </div>
+      <div class="col-sm-6 col-md-3">
+        <a href="#" class="thumbnail">
+          <img data-src="holder.js/100%x180" alt="...">
+        </a>
       </div>
     </div>
   <% end %>

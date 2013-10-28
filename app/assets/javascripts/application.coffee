@@ -2,6 +2,8 @@
 //= require vendor/jquery_ujs
 //= require vendor/bootstrap-select
 //= require vendor/bootstrap
+//= require vendor/holder.js
+# TODO Remove for deployment
 
 showOpenId = ->
   $('#openIdModal').show()

@@ -14,6 +14,7 @@
       <%= csrf_meta_tags %>
 
       <%= stylesheet_link_tag 'application' %>
+      <%= stylesheet_link_tag 'circuits' if request.path_info.include? "circuits" %>
       <%= javascript_include_tag 'application' %>
       <%= yield_content :head if content_for? :head %>
   </head>
@@ -46,7 +47,6 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <%= nav_link 'Home', url_for(:pages, :home) %>
-            <%= nav_link 'About', url_for(:pages, :about) %>
             <%= nav_link('Circuits', url_for(:circuits, :index)) { |url| url.include? "circuits" } %>
           </ul>
           <ul class="nav navbar-nav navbar-right">
