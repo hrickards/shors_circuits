@@ -12,20 +12,7 @@ Quantum::App.controllers :circuits do
     require_sign_in
     redirect_to url_for(:pages, :home) unless signed_in?
 
-    # Get all of the current user's circuits
-    @circuits = current_user.circuits.group_by { |c| c.c_id }.to_a
-    # For each circuit, show the last 5 iterations, and find the modified date
-    @circuits.map! do |cid, circuits|
-      [
-        cid,
-        circuits.sort_by { |circuit| circuit.v_id }.last(5),
-        circuits.map { |circuit| circuit.updated_at }.sort.first
-      ]
-    end
-    # Sort circuits by date, starting with most recent
-    @circuits.sort_by! { |cid, circuits, updated_at| updated_at }
-    @circuits.reverse!
-
+    @circuits = current_user.grouped_circuits(5)
     render 'circuits/index.erb'
   end
 
@@ -44,11 +31,25 @@ Quantum::App.controllers :circuits do
         i
       end
       @iterations.sort_by! { |c| c[:v_id] }
+      @can_modify_name = signed_in? ? @circuit.created_by?(current_user) : false
       render 'circuits/show.rabl'
     else
       # JS circuit viewer/editor
       render 'circuits/show.erb'
     end
+  end
+
+  # Change name of circuit
+  post :change_name, :map => '/circuits/:c_id/:v_id/name', :provides => [:json] do
+    require_sign_in
+
+    @circuit = Circuit.find_by_c_id_and_v_id @c_id, @v_id
+    halt 403 unless @circuit.created_by?(current_user)
+    halt 400 unless params["name"] == "circuitName"
+
+    @circuit.change_name params["value"]
+
+    {'status' => 'successful'}.to_json
   end
 
   # Update/create a circuit
@@ -77,9 +78,11 @@ Quantum::App.controllers :circuits do
     @circuit.v_id = Circuit.new_v_id(@c_id)
 
     # Update it's attributes
-    # TODO Only allow certain attributes to be set
-    @circuit.update_attributes! JSON.parse(params["circuit"])
+    circuit = JSON.parse params["circuit"]
+    %w{operators lines initial_state}.each { |k| @circuit[k] = circuit[k] }
     @circuit.save
+    
+    @circuit.change_name circuit['name'] if @circuit.created_by?(current_user)
 
     {
       'status' => 'successful',

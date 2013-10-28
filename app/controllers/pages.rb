@@ -1,6 +1,8 @@
 Quantum::App.controllers :pages do
   get :home, :map => '/' do
-    @circuits = current_user.circuits.reverse[0...5] if signed_in?
+    if signed_in?
+      @circuits = current_user.grouped_circuits(5)
+    end
 
     render 'pages/home'
   end

@@ -7,6 +7,7 @@ class Circuit
   key :operators, Array
   key :lines, Integer
   key :initial_state, String
+  key :name, String
 
   key :c_id, Integer
   key :v_id, Integer
@@ -18,6 +19,7 @@ class Circuit
   def ensure_values
     @lines = 2 if @lines.nil?
     @operators = [] if @operators.nil?
+    @title = ""
     return self
   end
 
@@ -85,6 +87,26 @@ class Circuit
         modified: c.updated_at.strftime("%b %d %Y"),
         current: c.v_id == self.v_id
       }
+    end
+  end
+
+  # If the first circuit with the same c_id was created by the passed user
+  def created_by?(user)
+    if @v_id == 1
+      circuit = self
+    else
+      circuit = self.class.find_by_c_id_and_v_id(@c_id, 1)
+    end
+    circuit.uid == user.uid
+  end
+
+  # Change the name of this circuit and all others with the same c_id
+  def change_name(name)
+    circuits = self.class.find_all_by_c_id(@c_id)
+    circuits = [self] if circuits.nil?
+    circuits.each do |circuit|
+      circuit.name = name
+      circuit.save
     end
   end
 end

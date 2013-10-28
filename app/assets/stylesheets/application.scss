@@ -8,6 +8,7 @@
 // Susy config
 @import "partials/susy";
 @import "bootstrap-select";
+@import "bootstrap-editable";
 
 $content-font: "proxima-nova", sans-serif;
 
@@ -61,6 +62,11 @@ div, nav { @include box-sizing(border-box); }
     //@include span-columns(9 omega, 12);
     margin-left: 15em;
     padding: 0.3em;
+
+    h2 {
+      margin-top: 5px;
+      margin-bottom: 15px;
+    }
   }
 
   #canvasContainer { margin-right: 1em; }
@@ -169,4 +175,13 @@ li.nohover :hover {
 
 #openIdSubmit {
   float: right;
+}
+
+#circuitName {
+  display: inline-block;
+}
+
+#horizontalCircuitIterations {
+  float: right;
+  li { display: inline; }
 }

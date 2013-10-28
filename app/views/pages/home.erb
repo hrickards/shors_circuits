@@ -14,10 +14,14 @@
       </div>
       <div class="panel-body">
         <ul class="nav nav-pills nav-stacked">
-          <% @circuits.each do |circuit| %>
+          <% @circuits.each do |cid, circuits, modified| %>
             <li>
-              <% url = url_for :circuits, :show, c_id: circuit.c_id, v_id: circuit.v_id %>
-              <a href="<%= url %>">Circuit <%= circuit.c_id %>.<%= circuit.v_id %></a>
+              <%= circuits.first.name %>
+              <ul id="horizontalCircuitIterations">
+                <% circuits.each do |circuit| %>
+                  <li><a href="<%= url_for(:circuits, :show, :c_id => cid, :v_id => circuit.v_id) %>"><span class="badge"><%= circuit.v_id %></span></a></li>
+                <% end %>
+              </ul>
             </li>
           <% end %>
           <% if @circuits.empty? %>

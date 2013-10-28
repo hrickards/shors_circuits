@@ -15,7 +15,7 @@
       <tbody>
         <% @circuits.each do |cid, circuits, modified| %>
           <tr>
-            <td>Circuit <%= cid %></td>
+            <td><%= circuits.first.name %></td>
             <td>
               <% circuits.each do |circuit| %>
                 <a href="<%= url_for(:circuits, :show, :c_id => cid, :v_id => circuit.v_id) %>"><span class="badge"><%= circuit.v_id %></span></a>

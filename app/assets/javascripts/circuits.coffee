@@ -5,6 +5,7 @@
 //= require vendor/raphael
 //= require vendor/g.raphael
 //= require vendor/g.pie
+//= require vendor/bootstrap-editable
 //= require Collection
 //= require Line
 //= require Operator
@@ -334,6 +335,21 @@ setupNewOperatorForm = ->
   @matrixInput.render()
   closeNewOperatorForm()
 
+setupFixedName = (name) ->
+  $('#circuitName').text(name)
+
+setupEditableName = (url, name) ->
+  setupFixedName(name)
+  $('#circuitName').editable(
+    type: 'text'
+    # xeditable needs this, but cid and vid are actually in the URL
+    pk: 1
+    url: url
+    title: 'Change circuit name'
+    placement: 'bottom'
+  )
+
+
 # Initialises the page with a new stage
 init = ->
   setupNewOperatorForm()
@@ -381,6 +397,7 @@ bootstrap = (func) ->
   )
 
 setupNewCircuit = ->
+  setupEditableName('', 'Untitled Circuit')
   $('#iterations').hide()
   @lines.add(3)
   @lines.render(@linesLayer)
@@ -408,6 +425,11 @@ loadCircuit = ->
 renderCircuit = (circuit) =>
   $('#save').attr('title', 'Update')
   $('#initialState').val(circuit['initial_state'])
+
+  if(circuit['can_modify_name'])
+    setupEditableName(dataPath('/name'), circuit['name'])
+  else
+    setupFixedName(circuit['name'])
 
   @lines.add(circuit['lines'])
   @lines.render(linesLayer)
@@ -453,6 +475,7 @@ genHash = ->
     operators: operators
     lines: @lines.count()
     initial_state: $('#initialState').val()
+    name: $('#circuitName').text()
   }
   return hash
 
