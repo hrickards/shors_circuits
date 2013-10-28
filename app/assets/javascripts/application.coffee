@@ -15,3 +15,10 @@ setupOpenId = ->
 
 $(document).ready ->
   setupOpenId()
+
+  $(document).on('click', 'a.close', (e) ->
+    e.preventDefault()
+    $(@).parent().slideUp('slow', ->
+      $(@).remove()
+    )
+  )

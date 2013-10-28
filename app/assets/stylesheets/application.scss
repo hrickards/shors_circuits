@@ -166,7 +166,10 @@ li.nohover :hover {
   color: black !important;
 }
 
-.alert-top { margin-bottom: 0 !important; }
+.alert-top {
+  margin-bottom: 0 !important;
+  border-radius: 0 !important;
+}
 
 #matrixContainer {
   height: 20em;
@@ -184,4 +187,8 @@ li.nohover :hover {
 #horizontalCircuitIterations {
   float: right;
   li { display: inline; }
+}
+
+#usave {
+  background-color: #ddd;
 }

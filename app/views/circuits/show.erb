@@ -25,7 +25,7 @@
     </div>
     <div class="btn-toolbar">
       <button id="run" href="#" title="Run" class="btn btn-default"><i class="icon-play"></i></button>
-      <button id="save" href="#" title="Save" class="btn btn-default"><i class="icon-save"></i></button>
+      <button id="<%= signed_in? ? "save" : "usave" %>" href="#" title="Save" class="btn btn-default"><i class="icon-save"></i></button>
     </div>
   </ul>
 

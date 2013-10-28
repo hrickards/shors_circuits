@@ -23,15 +23,17 @@
     <![endif]-->
 
     <div id="page">
-      <%# SO 17931534 %>
-      <% flash.each do |name, msg| %>
-        <% if msg.is_a? String %>
-          <div class="alert-top alert alert-<%= flash_class(name) %>">
-            <a class="close" data-dismiss="alert">&#215;</a>
-            <%= content_tag :div, msg, :id => "flash_#{name}" %>
-          </div>
+      <div id="flash">
+        <%# SO 17931534 %>
+        <% flash.each do |name, msg| %>
+          <% if msg.is_a? String %>
+            <div class="alert-top alert alert-<%= flash_class(name) %>">
+              <a class="close">&#215;</a>
+              <%= content_tag :div, msg, :id => "flash_#{name}" %>
+            </div>
+          <% end %>
         <% end %>
-      <% end %>
+      </div>
       <div id="navbar" class="navbar navbar-default navbar-static-top">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">

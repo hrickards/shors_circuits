@@ -273,12 +273,23 @@ deleteLine = ->
     return _.contains(op.lines, line.id)
   , @operatorsLayer, true)
 
+flashMessage = (text, type) ->
+  alert = $('<div class="alert-top alert alert-' + type + ' login' + type + '"><a class="close">&#215;</a>' + text + '</div>').hide()
+  if ($('#flash > .loginWarning').length)
+    $('#flash > .loginWarning').slideUp('slow', ->
+      $('#flash > .loginWarning').remove()
+      alert.appendTo('#flash').slideDown('slow')
+    )
+  else
+    alert.appendTo('#flash').slideDown('slow')
+
 bindLinkClick = ->
   $('#add').on('click', -> setMode('add'); return false)
   $('#move').on('click', -> setMode('move'); return false)
   $('#delete').on('click', -> setMode('delete'); return false)
   $('#run').on('click', -> run(); setMode('run'); return false)
   $('#save').on('click', -> save(); return false)
+  $('#usave').on('click', -> flashMessage("You must login to save a circuit!", 'warning'); return false)
   $('#addLine').on('click', -> addLine(); return false)
   $('#deleteLine').on('click', -> deleteLine(); return false)
   $('#newOperator').on('click', -> newOperator(); return false)
@@ -511,27 +522,8 @@ run = ->
     @measurementResultsData = data['probabilities']
 
     showResultsContainer()
-
-    # _.each(data['probabilities'], (results, num) ->
-    #   console.log("Measurement " + num)
-    #   _.each(results, (prob, result) ->
-    #     console.log("Results " + result + " wp " + prob)
-    #   )
-    # )
-    #     html = "<ul>"
-    # 
-    #     _.each(data['results'], (state) ->
-    #       # CamelCase?
-    #       # html += "<li><img src='" + state['state_latex'] + "'> w.p. " + state['probability_string'] + "</li>"
-    #       # html += "<li>" + state['state_string'] + " w.p. " + state['probability_string'] + "</li>"
-    #       html += "<li>"
-    #       html += "<img src='/latex/qcircuit/" + state['state_latex'] + ".png?height=30'>"
-    #       html += " w.p. "
-    #       html += "<img src='/latex/math/" + state['probability_latex'] + ".png?height=30'>"
-    #       html += "</li>"
-    #     )
-    #     html += "</ul>"
-    #     $("#results").html(html)
+  ).error(->
+    flashMessage('Something went wrong when running that circuit. Please try again later', 'danger')
   )
 
 resize = ->
