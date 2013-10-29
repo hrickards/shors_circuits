@@ -555,6 +555,7 @@ save = ->
 
 showResultsContainer = ->
   $("#resultsContainer").show()
+  $("#resultsContainer").draggable()
 
 hideResultsContainer = ->
   $("#resultsContainer").hide()
