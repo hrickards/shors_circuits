@@ -26,8 +26,8 @@
         </div>
       </div>
       <div class="col-md-4 noOverlap">
-        <a href="#" class="thumbnail">
-          <img data-src="holder.js/100%x180" alt="...">
+        <a href="<%= url_for(:circuits, :show) %>" class="thumbnail">
+          <img src="/images/qt.png" alt="Quantum Teleportation Circuit">
         </a>
       </div>
     </div>
@@ -66,23 +66,27 @@
   <% else %>
     <div class="row">
       <div class="col-sm-6 col-md-3">
-        <a href="#" class="thumbnail">
-          <img data-src="holder.js/100%x180" alt="...">
+        <a href="<%= url_for(:circuits, :show) %>" class="thumbnail thumbnail-center">
+          <img src="/images/circuits/qt.png" alt="Quantum Teleportation Circuit">
+          <b>Quantum Teleportation</b>
         </a>
       </div>
       <div class="col-sm-6 col-md-3">
-        <a href="#" class="thumbnail">
-          <img data-src="holder.js/100%x180" alt="...">
+        <a href="<%= url_for(:circuits, :show) %>" class="thumbnail thumbnail-center">
+          <img src="/images/circuits/bell.png" alt="Bell States">
+          <b>Bell States</b>
         </a>
       </div>
       <div class="col-sm-6 col-md-3">
-        <a href="#" class="thumbnail">
-          <img data-src="holder.js/100%x180" alt="...">
+        <a href="<%= url_for(:circuits, :show) %>" class="thumbnail thumbnail-center">
+          <img src="/images/circuits/pauli.png" alt="Pauli Gates">
+          <b>Pauli Gates</b>
         </a>
       </div>
       <div class="col-sm-6 col-md-3">
-        <a href="#" class="thumbnail">
-          <img data-src="holder.js/100%x180" alt="...">
+        <a href="<%= url_for(:circuits, :show) %>" class="thumbnail thumbnail-center">
+          <img src="/images/circuits/measurement.png" alt="Measurement">
+          <b>Measurement</b>
         </a>
       </div>
     </div>
