@@ -46,13 +46,19 @@
       <h3 class="panel-title closeTitle">New Operator</h3>
     </div>
     <div class="panel-body">
-      <form>
-        <div class="col-sm-6">
-          <div class="form-group">
+      <form class="form-horizontal">
+        <div class="form-group">
+          <div class="col-lg-6">
             <label for="name">Name</label>
             <input type="text" name="name" id="name" class="form-control" />
           </div>
-          <div class="form-group">
+          <div class="col-lg-6">
+            <label for="symbol">Symbol</label>
+            <input type="text" name="symbol" id="symbol" class="form-control" />
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-lg-6">
             <label for="type">Type</label>
             <select name="type" id="type" class="form-control">
               <option value="gate">Gate</option>
@@ -60,22 +66,24 @@
               <option value="controlled">Controlled</option>
             </select>
           </div>
-        </div>
-        <div class="col-sm-6">
-          <div class="form-group">
-            <label for="symbol">Symbol</label>
-            <input type="text" name="symbol" id="symbol" class="form-control" />
-          </div>
-          <div class="form-group">
+          <div class="col-lg-6">
             <label for="size">Size</label>
             <input type="number" name="size" id="size" class="form-control" />
           </div>
         </div>
-        <div class="form-group">
-          <label for="matrix">Matrix</label>
-          <div id="matrixContainer">
-            <table id="matrix">
-            </table>
+        <div class="col-sm-12" id="normalForm">
+          <div class="form-group">
+            <label for="matrix">Matrix</label>
+            <div class="matrixContainer">
+              <table id="matrix">
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="controlledForm">
+          <button type="button" class="btn btn-primary" id="newControlledMatrix">New Pair</button>
+          <button type="button" class="btn btn-primary" id="deleteControlledMatrix">Delete Pair</button>
+          <div id="controlledFormContent" class="matrixContainer">
           </div>
         </div>
         <button type="button" class="btn btn-success" id="newOperatorSubmit">Submit</button>

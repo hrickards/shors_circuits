@@ -305,16 +305,72 @@ closeNewOperatorForm = ->
   $('#symbol').val('')
   $('#type').prop('selectedIndex', 0)
   $('#size').val('')
+  $('#controlledFormContent').html('')
+  @controlledMatrixInputs = {}
+  switchFormNormal()
   @matrixInput.render()
+
+switchFormNormal = ->
+  $("#normalForm").show()
+  $("#controlledForm").hide()
+
+switchFormControlled = ->
+  $("#normalForm").hide()
+  $("#controlledForm").show()
+
+removeFromControlled = ->
+  ids = _($("#controlledFormContent").find("table")).map( (t) ->
+    return parseInt(t.id.substr(6))
+  )
+  if ids.length > 0
+    removeId = _(ids).max()
+    delete @controlledMatrixInputs[removeId]
+    $("#controlledFormContent > div.form-group").has("table#matrix" + removeId).remove()
+
+
+addToControlled = ->
+  ids = _($("#controlledFormContent").find("table")).map( (t) ->
+    return parseInt(t.id.substr(6))
+  )
+  if ids.length > 0
+    newId = _(ids).max() + 1
+  else
+    newId = 0
+
+  html = '<div class="form-group form-group-norightmargin">'
+  html += '<div class="col-lg-8">'
+  html += '<label for="matrix' + newId + '">Matrix</label>'
+  html += '<div>'
+  html += '<table id="matrix' + newId + '">'
+  html += '</table>'
+  html += '</div>'
+  html += '</div>'
+  html += '<div class="col-lg-3">'
+  html += '<label for="measured' + newId + '">Measured Value</label>'
+  html += '<input type="text" name="measured' + newId + '" id="measured' + newId + '" class="form-control" />'
+  html += '</div>'
+  html += '</div>'
+  $("#controlledFormContent").append(html)
+
+  @controlledMatrixInputs[newId] = new MatrixInput({
+    el: $('#matrix' + newId)
+    sizeEl: $('#size')
+    class: "form-control matrixInputBox"
+  })
+  @controlledMatrixInputs[newId].render()
 
 setupNewOperatorForm = ->
   $('#newOperatorSubmit').on('click', =>
+    if $("#type").val() == "controlled"
+      matrix = _(@controlledMatrixInputs).map((m, id) -> [$("#measured" + id).val(), m.value()])
+    else
+      matrix = @matrixInput.value()
     data = {
       name: $("#name").val()
       symbol: $("#symbol").val()
       type: $("#type").val()
       size: parseInt($("#size").val())
-      matrix: @matrixInput.value()
+      matrix: matrix
     }
     $.post('/operators', {operator: JSON.stringify(data)}).done((rData) =>
       listData = {
@@ -337,9 +393,22 @@ setupNewOperatorForm = ->
 
     closeNewOperatorForm()
   )
+  $("#type").on('change', ->
+    if $(@).val() == "controlled"
+      switchFormControlled()
+    else
+      switchFormNormal()
+  )
+  $('#newControlledMatrix').on('click', ->
+    addToControlled()
+  )
+  $('#deleteControlledMatrix').on('click', ->
+    removeFromControlled()
+  )
   $('.closeOperator').click(->
     closeNewOperatorForm()
   )
+  @controlledMatrixInputs = {}
   @matrixInput = new MatrixInput({
     el: $('#matrix')
     sizeEl: $('#size')
@@ -581,6 +650,8 @@ run = ->
 resize = ->
   $("#sidebar").height($("#page").height() - $("#header").height())
   $("#canvasContainer").height($("#page").height() - $("#header").height())
+
+  $(".matrixContainer").css('height', $(document).height() - 450)
 
   if @stage?
     canvasWidth = $('#canvasContainer').width()
