@@ -309,6 +309,12 @@ bindLinkClick = ->
   $('#deleteLine').on('click', -> deleteLine(); return false)
   $('#newOperator').on('click', -> newOperator(); return false)
   $('#pan').on('click', -> setMode('pan'); return false)
+  $('#center').on('click', -> centerStage(); return false)
+
+centerStage = ->
+  @stage.setPosition(0, 0)
+  @stage.draw()
+  @offset = {x: 0, y: 0}
 
 newOperator = ->
   $('#newOperatorModal').show()
