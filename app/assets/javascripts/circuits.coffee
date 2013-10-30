@@ -14,6 +14,12 @@
 //= require VerticalLine
 //= require MatrixInput
 
+getMousePosition = ->
+  mousePos = @stage.getMousePosition()
+  mousePos['x'] -= @offset['x']
+  mousePos['y'] -= @offset['y']
+  return mousePos
+
 # Returns new canvas stage for passed canvas ID
 newStage = (canvasId) ->
   canvasWidth = $('#' + canvasId).width()
@@ -22,6 +28,8 @@ newStage = (canvasId) ->
     container: canvasId
     width: canvasWidth
     height: canvasHeight
+    dragBoundFunc: (pos) =>
+      @offset = pos
   window.stage = stage
 
   return stage
@@ -45,7 +53,7 @@ getOperatorByIdType = (id, type) ->
   return _.find(operators, (op) -> op.id == id)
 
 deleteOperatorClick = ->
-  mousePos = @stage.getMousePosition()
+  mousePos = getMousePosition()
   op = @operators.findClosest(mousePos['x'], mousePos['y'])
 
   if op.operatorType == 'measurement'
@@ -55,11 +63,11 @@ deleteOperatorClick = ->
   @operators.remove op, @operatorsLayer, true
 
 moveOperatorClick = ->
-  mousePos = @stage.getMousePosition()
+  mousePos = getMousePosition()
   op = @operators.findClosest(mousePos['x'], mousePos['y'])
   $(@stage.getContent()).off('click.normal')
   $(@stage.getContent()).on('mousemove', =>
-    mousePos = @stage.getMousePosition()
+    mousePos = getMousePosition()
     [lineIds, y] = findLinesY(mousePos['y'], op.size)
 
     op.changePosition(mousePos['x'], y)
@@ -109,7 +117,7 @@ unhighlightAllMeasurements = ->
 
 inspectClick = ->
   $("#inspectMessage").hide()
-  mousePos = @stage.getMousePosition()
+  mousePos = getMousePosition()
   ensureVerticalLineAt(mousePos['x'])
 
   op = @operators.leftOf(mousePos['x']).findClosestByX(mousePos['x'])
@@ -184,21 +192,21 @@ removeMeasurementResults = ->
   @r.clear() if @r?
 
 newOperatorInstanceClick = =>
-  mousePos = @stage.getMousePosition()
+  mousePos = getMousePosition()
   operator = getOperator()
 
   [lineIds, y] = findLinesY(mousePos['y'], operator.size)
   op = newOperatorInstance(lineIds, mousePos['x'], y, operator)
 
   if operator.type == "controlled"
-    newMousePos = @stage.getMousePosition()
+    newMousePos = getMousePosition()
     measurement = @operators.findAllByType('measurement').findClosest(newMousePos['x'], newMousePos['y'])
     op.measurement = measurement
     op.renderMeasurementConnection(@operatorsLayer, true)
     
     # jquery .one not working in this situation
     $(@stage.getContent()).on('mousemove.controlled', =>
-      newMousePos = @stage.getMousePosition()
+      newMousePos = getMousePosition()
       measurement = @operators.findAllByType('measurement').findClosest(newMousePos['x'], newMousePos['y'])
       op.measurement = measurement
       op.moveMeasurementConnection(@operatorsLayer, true)
@@ -209,7 +217,7 @@ newOperatorInstanceClick = =>
       $(@stage.getContent()).off('mousemove.controlled')
       bindStageClick()
 
-      newMousePos = @stage.getMousePosition()
+      newMousePos = getMousePosition()
       measurement = @operators.findAllByType('measurement').findClosest(newMousePos['x'], newMousePos['y'])
       op.measurement = measurement
       op.moveMeasurementConnection(@operatorsLayer, true)
@@ -223,6 +231,11 @@ setMode = (mode) ->
     removeResults()
     hideResultsContainer()
     @oldOpmId = undefined
+  if @stage?
+    if mode == "pan"
+      @stage.setDraggable(true)
+    else
+      @stage.setDraggable(false)
   $("#controlLinks button").removeClass("btn-primary")
   $("#controlLinks button").addClass("btn-default")
   $("#controlLinks #" + mode).removeClass("btn-default")
@@ -295,6 +308,7 @@ bindLinkClick = ->
   $('#addLine').on('click', -> addLine(); return false)
   $('#deleteLine').on('click', -> deleteLine(); return false)
   $('#newOperator').on('click', -> newOperator(); return false)
+  $('#pan').on('click', -> setMode('pan'); return false)
 
 newOperator = ->
   $('#newOperatorModal').show()
@@ -470,6 +484,7 @@ setupEditableName = (url, name) ->
 
 # Initialises the page with a new stage
 init = ->
+  @offset = {'x': 0, 'y': 0}
   setupNewOperatorForm()
   setupResultsContainer()
   setupDropdowns()

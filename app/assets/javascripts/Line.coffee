@@ -4,7 +4,8 @@ class Line
   constructor: (@id) ->
     @y = @id * 50 + 50
   y: 0
-  startPos: -> return {x: 0, y: @y}
+  # TODO Do this a better way!
+  startPos: -> return {x: -6000, y: @y}
   endPos: -> return {x: 6000, y: @y}
  
   # Shows the line
