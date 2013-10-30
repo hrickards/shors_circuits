@@ -9,8 +9,7 @@ Quantum::App.controllers :circuits do
 
   # List of circuits
   get :index, :map => '/my_circuits', :provides => :html do
-    require_sign_in
-    redirect_to url_for(:pages, :home) unless signed_in?
+    redirect_to url_for(:circuits, :show) unless signed_in?
 
     @circuits = current_user.grouped_circuits(5)
     render 'circuits/index.erb'
@@ -72,9 +71,6 @@ Quantum::App.controllers :circuits do
   put :update, :map => '/circuits(/:c_id)(/:v_id)', :provides => [:json] do
     require_sign_in
 
-    # Require a user to be signed in
-    redirect_to url_for(:pages, :home) unless signed_in?
-    
     # Find new circuit_id 
     @c_id = Circuit.new_c_id if @c_id.nil?
     # Create new circuit if one doesn't exist yet
