@@ -24,6 +24,8 @@ gem 'susy'
 # Sprockets (cf asset pipeline)
 gem 'padrino-sprockets'
 gem 'sprockets-sass'
+gem 'yui-compressor'
+gem 'uglifier'
 
 # Mongo
 gem 'bson_ext', require: 'mongo'
