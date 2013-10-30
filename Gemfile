@@ -38,4 +38,5 @@ end
 group :development do
   # Deployment scripts
   gem 'capistrano', '~>3.0.0', require: false
+  gem 'capistrano-bundler', require: false
 end
