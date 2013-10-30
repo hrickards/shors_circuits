@@ -76,7 +76,7 @@ GEM
       url_mount (~> 0.2.1)
     httpauth (0.2.0)
     i18n (0.6.5)
-    json (1.8.1)
+    jsmin (1.0.1)
     jwt (0.1.8)
       multi_json (>= 1.5)
     mail (2.5.4)
@@ -165,9 +165,6 @@ GEM
     treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)
-    uglifier (2.3.0)
-      execjs (>= 0.3.0)
-      json (>= 1.8.0)
     url_mount (0.2.1)
       rack
     yui-compressor (0.12.0)
@@ -181,6 +178,7 @@ DEPENDENCIES
   coffee-script
   compass
   improved-rack-throttle!
+  jsmin
   mongo_mapper
   oj
   omniauth
@@ -195,5 +193,4 @@ DEPENDENCIES
   slim
   sprockets-sass
   susy
-  uglifier
   yui-compressor

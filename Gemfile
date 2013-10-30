@@ -25,7 +25,7 @@ gem 'susy'
 gem 'padrino-sprockets'
 gem 'sprockets-sass'
 gem 'yui-compressor'
-gem 'uglifier'
+gem 'jsmin'
 
 # Mongo
 gem 'bson_ext', require: 'mongo'
