@@ -22,10 +22,10 @@ gem 'slim'
 gem 'susy'
 
 # Sprockets (cf asset pipeline)
-gem 'padrino-sprockets'
+gem "padrino-sprockets", "~> 0.0.3"
 gem 'sprockets-sass'
 gem 'yui-compressor'
-gem 'jsmin'
+gem 'uglifier'
 
 # Mongo
 gem 'bson_ext', require: 'mongo'
