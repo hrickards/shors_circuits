@@ -11,4 +11,3 @@ db/*.db
 *.pyc
 config/application.yml
 config/puma.rb
-TODO

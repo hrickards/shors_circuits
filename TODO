@@ -1,0 +1,15 @@
+Features
+========
+! JS help tour/tutorial
+
+Deployment
+==========
+! Caching
+
+Code Cleanup
+============
+Seperate out global functions into Circuit class
+Document CS
+Document Padrino controllers
+Clean up CSS
+! Test
