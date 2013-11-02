@@ -18,4 +18,8 @@ Quantum::App.helpers do
     when :alert then "warning"
     end
   end
+
+  def demonstration_url(name)
+    url_for :circuits, :show, c_id: Circuit.where(name: name).sort(:created_at).first.c_id, v_id: 1
+  end
 end
