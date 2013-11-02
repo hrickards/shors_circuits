@@ -31,3 +31,12 @@ namespace :deploy do
     end
   end
 end
+ 
+namespace:data do
+  desc 'Clear all data & import defaults'
+  task :import do
+    on roles(:app) do
+      execute "cd #{deploy_to}/current; bundle exec padrino rake data:import -e production"
+    end
+  end
+end
