@@ -29,6 +29,7 @@
     <div class="btn-toolbar">
       <button id="pan" href="#" title="Pan Canvas" class="btn btn-default"><i class="icon-hand-up"></i></button>
       <button id="center" href="#" title="Center Canvas" class="btn btn-default"><i class="icon-bullseye"></i></button>
+      <button id="inspect" href="#" title="Inspect Operators" class="btn btn-default"><i class="icon-eye-open"></i></button>
     </div>
   </ul>
 
@@ -92,6 +93,21 @@
         <button type="button" class="btn btn-success" id="newOperatorSubmit">Submit</button>
         <button type="button" class="btn btn-warning closeOperator">Cancel</button>
       </form>
+    </div>
+  </div>
+</div>
+<div id="inspectorContainer" class="panel panel-default">
+  <div class="panel-heading">
+    <div class="closeButton">
+      <button type="button" class="close closeInspector"><i class="icon-remove-circle icon-large"></i></button>
+    </div>
+    <h3 class="panel-title closeTitle">Operator Inspection</h3>
+  </div>
+  <div class="panel-body">
+    <div id="inspectOperatorMessage" class="alert alert-info">
+      Click on an operator to inspect it
+    </div>
+    <div id="operatorDetails">
     </div>
   </div>
 </div>

@@ -32,4 +32,10 @@ Quantum::App.controllers :operators do
 
     return {:id => operator._id}.to_json
   end
+
+  get :show, :map => '/operators/details/:id', :provides => :json do
+    @operator = Operator.find params[:id]
+
+    render 'operators/show.rabl'
+  end
 end

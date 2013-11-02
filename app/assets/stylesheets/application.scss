@@ -127,7 +127,7 @@ div, nav { @include box-sizing(border-box); }
   margin: 10% auto;
 }
 
-#resultsContainer {
+#inspectorContainer, resultsContainer {
   width: 500px;
   height: 400px;
   position: fixed;

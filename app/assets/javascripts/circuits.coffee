@@ -105,17 +105,40 @@ ensureNoVerticalLine = ->
     @verticalLine.unrender(@inspectorsLayer, true)
     @verticalLine = undefined
 
-highlightMeasurement = (opm) ->
+highlightOperator = (opm) ->
   opm.highlight()
   @operatorsLayer.draw()
 
-unhighlightAllMeasurements = ->
-  _.each(@operators.findAllByType('measurement').models, (op) ->
-    op.unhighlight()
-  )
-  @operatorsLayer.draw()
+unhighlightAllOperators = ->
+  if @operators?
+    _.each(@operators.models, (op) ->
+      op.unhighlight()
+    )
+    @operatorsLayer.draw()
 
-inspectClick = ->
+operatorDetailPath = (id) ->
+  return "/operators/details/" + id
+
+inspectOperatorClick = ->
+  unhighlightAllOperators()
+  mousePos = getMousePosition()
+  operator = @operators.findClosest(mousePos['x'], mousePos['y'])
+  if operator?
+    highlightOperator(operator)
+    $('#inspectOperatorMessage').hide()
+    $.get(operatorDetailPath(operator.operatorId)).done((data) ->
+      op = data['operator']
+      type = op['type']
+
+      html = "<div><b>Name:</b> " + op['name'] + "</div>"
+      html += "<div><b>Size:</b> " + op['size'] + "</div>"
+      html += "<div><b>Symbol:</b> " + op['symbol'] + "</div>"
+      html += "<div><b>Type:</b> " + type.charAt(0).toUpperCase() + type.slice(1) + "</div>"
+      $("#operatorDetails").html(html)
+    )
+
+
+inspectRunClick = ->
   $("#inspectMessage").hide()
   mousePos = getMousePosition()
   ensureVerticalLineAt(mousePos['x'])
@@ -126,10 +149,10 @@ inspectClick = ->
   showResults(oId)
 
   # Find closest measurement
-  unhighlightAllMeasurements()
+  unhighlightAllOperators()
   opm = @operators.findAllByType('measurement').findClosestByX(mousePos['x'])
   if opm?
-    highlightMeasurement(opm)
+    highlightOperator(opm)
     showMeasurementResults(opm.id) unless @oldOpmId == opm.id
     @oldOpmId = opm.id
 
@@ -231,11 +254,14 @@ newOperatorInstanceClick = =>
 setMode = (mode) ->
   if mode != "run" and @operators?
     ensureNoVerticalLine()
-    unhighlightAllMeasurements()
+    unhighlightAllOperators()
     removeMeasurementResults()
     removeResults()
     hideResultsContainer()
     @oldOpmId = undefined
+  if mode != "inspect"
+    hideInspectorContainer()
+    unhighlightAllOperators()
   if @stage?
     if mode == "pan"
       @stage.setDraggable(true)
@@ -255,7 +281,8 @@ stageClick = ->
     when "add" then newOperatorInstanceClick()
     when "move" then moveOperatorClick()
     when "delete" then deleteOperatorClick()
-    when "run" then inspectClick()
+    when "run" then inspectRunClick()
+    when "inspect" then inspectOperatorClick()
 
 newOperatorInstance = (lines, x, y, operator) ->
   op = @operators.new(lines, x, y, operator.type, operator.id, operator.symbol, operator.size)
@@ -311,6 +338,7 @@ bindLinkClick = ->
   $('#move').on('click', -> setMode('move'); return false)
   $('#delete').on('click', -> setMode('delete'); return false)
   $('#run').on('click', -> run(); setMode('run'); return false)
+  $('#inspect').on('click', -> showInspectorContainer(); setMode('inspect'); return false)
   $('#save').on('click', -> save(); return false)
   $('#usave').on('click', -> flashMessage("You must login to save a circuit!", 'warning'); return false)
   $('#addLine').on('click', -> addLine(); return false)
@@ -501,6 +529,7 @@ init = ->
   @offset = {'x': 0, 'y': 0}
   setupNewOperatorForm()
   setupResultsContainer()
+  setupInspectorContainer()
   setupDropdowns()
   setMode('add')
   @stage = newStage('canvasContainer')
@@ -675,6 +704,23 @@ save = ->
   # $.post('http://localhost:5000/save', JSON.stringify(genHash())).done((data) ->
   # console.log(data['status'])
   # )
+
+showInspectorContainer = ->
+  $('#inspectorContainer').show()
+  $("#inspectorContainer").draggable(
+    handle: '.panel-heading'
+  )
+
+hideInspectorContainer = ->
+  $('#inspectorContainer').hide()
+  $('#inspectOperatorMessage').show()
+  $("#operatorDetails").html("")
+
+setupInspectorContainer = ->
+  $('.closeInspector').click(->
+    hideInspectorContainer()
+  )
+  hideInspectorContainer()
 
 showResultsContainer = ->
   $("#resultsContainer").show()
