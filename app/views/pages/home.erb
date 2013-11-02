@@ -47,10 +47,10 @@
             <h3 class="panel-title">My Circuits</h3>
           </div>
           <div class="panel-body">
-            <ul class="nav nav-pills nav-stacked">
+            <ul>
               <% @circuits.each do |cid, circuits, modified| %>
                 <li>
-                <%= circuits.first.name %>
+                <a href="<%= url_for(:circuits, :show, :c_id => circuits.last.c_id, :v_id => circuits.last.v_id) %>"><%= circuits.first.name %></a>
                 <ul id="horizontalCircuitIterations">
                   <% circuits.each do |circuit| %>
                     <li><a href="<%= url_for(:circuits, :show, :c_id => cid, :v_id => circuit.v_id) %>"><span class="badge"><%= circuit.v_id %></span></a></li>
