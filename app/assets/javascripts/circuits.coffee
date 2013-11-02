@@ -190,8 +190,8 @@ showMeasurementResults = (oId) ->
   labels = _.map(keys, (key) -> key + " wp " + results[key][0])
   values = _.map(keys, (key) -> results[key][1])
 
-  html = "<div>Expected value: " + results['expected'] + "</div>"
-  html += "<div>Variance: " + results['variance'] + "</div>"
+  html = "<div>Expected value: <img src='/latex/math/" + results['expected'] + ".png?height=30'/></div>"
+  html += "<div>Variance: <img src='/latex/math/" + results['variance'] + ".png?height=30'/></div>"
 
   $('#measurementsDataContainer').html(html)
 

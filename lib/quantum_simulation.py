@@ -118,8 +118,8 @@ def format_probabilities(h1, expected, variance):
     for key in h1.keys():
         v = h1[key].simplify()
         h2[str(key)] = [str(v), float(v)]
-    h2['expected'] = str(expected)
-    h2['variance'] = str(variance)
+    h2['expected'] = urllib.quote(latex(expected))
+    h2['variance'] = urllib.quote(latex(variance))
     return h2
 
 # Given a state tuple (state, probability, ...), nicely format it
