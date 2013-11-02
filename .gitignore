@@ -11,3 +11,4 @@ db/*.db
 *.pyc
 config/application.yml
 config/puma.rb
+lib/tasks/user.yml

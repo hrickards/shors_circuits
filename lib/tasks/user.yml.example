@@ -1,0 +1,4 @@
+email: "foo@bar.com"
+name: "Foo Bar"
+uid: "012345678901234567890"
+provider: "google"
