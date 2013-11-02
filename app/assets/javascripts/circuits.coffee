@@ -270,7 +270,10 @@ changeDropdown = (opType) ->
 
   $('#operatorId').empty()
   _.each(operators, (operator) ->
-    $('#operatorId').append($("<option></option>").attr("value", operator.id).text(operator.name))
+    description = operator.name
+    if operator.size > 1
+      description +=  " (" + operator.size + " qubits)"
+    $('#operatorId').append($("<option></option>").attr("value", operator.id).text(description))
   )
   $('#operatorId').selectpicker('refresh')
 
@@ -645,7 +648,9 @@ save = ->
 
 showResultsContainer = ->
   $("#resultsContainer").show()
-  $("#resultsContainer").draggable()
+  $("#resultsContainer").draggable(
+    handle: '.panel-heading'
+  )
 
 hideResultsContainer = ->
   $("#resultsContainer").hide()
@@ -665,7 +670,7 @@ run = ->
 
     showResultsContainer()
   ).error(->
-    flashMessage('Something went wrong when running that circuit. Please try again later', 'danger')
+    flashMessage("Something went wrong when running that circuit. Please make sure you're logged in and try again later.", 'danger')
   )
 
 resize = ->

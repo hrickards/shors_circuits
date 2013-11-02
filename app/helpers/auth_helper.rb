@@ -15,6 +15,10 @@ Quantum::App.helpers do
     end
   end
 
+  def require_sign_in_with_error
+    halt 403 unless signed_in?
+  end
+
   def no_more_new_providers?
     POSSIBLE_PROVIDERS.reject { |prov| user_authenticated_provider? prov }.empty?
   end

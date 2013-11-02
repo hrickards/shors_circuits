@@ -109,7 +109,7 @@ Quantum::App.controllers :circuits do
 
   # Run the circuit data posted
   post :run, :map => '/circuits/run', :provides => [:json] do
-    require_sign_in
+    require_sign_in_with_error
 
     circuit = JSON.parse(params["circuit"])
 
