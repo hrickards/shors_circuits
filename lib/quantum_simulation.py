@@ -111,7 +111,6 @@ def format_probabilities(h1):
     h2 = {}
     for key in h1.keys():
         v = h1[key].simplify()
-        sys.stderr.write(str(v))
         h2[str(key)] = [str(v), float(v)]
     return h2
 
@@ -376,11 +375,11 @@ class QuantumSimulation:
             # For each vector in the eigenvector basis
             for vec in vecs:
                 # Obtain a projection operator P = x*x^T
-                p = vec * vec.T
+                p = vec * vec.H
 
                 # Probability of this outcome Pr = |phi>^T * P * |phi>
                 # [0] because we want the value of a 1x1 matrix
-                probability = (input_register.T * p * input_register)[0]
+                probability = (input_register.H * p * input_register)[0]
                 # Don't need to consider this outcome anymore if it
                 # won't happen
                 if probability == 0: continue
