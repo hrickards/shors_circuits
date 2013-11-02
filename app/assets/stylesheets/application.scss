@@ -137,7 +137,15 @@ div, nav { @include box-sizing(border-box); }
   margin-left: 20px;
   margin-right: 20px;
   display: none;
-  overflow: auto;
+
+  .panel-heading {
+    height: 40px;
+  }
+  .panel-body {
+    width: 500px;
+    height: 360px;
+    overflow: auto;
+  }
 }
 
 #controlledForm {
