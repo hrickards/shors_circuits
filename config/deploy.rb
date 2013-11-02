@@ -26,6 +26,7 @@ namespace :deploy do
   after :updated, :symlink_files do
     on roles(:app) do
       execute "ln -s #{shared_path}/application.yml #{release_path}/config/"
+      execute "ln -s #{shared_path}/user.yml #{release_path}/lib/tasks/"
       execute "ln -s #{shared_path}/puma.rb #{release_path}/config/"
     end
   end
