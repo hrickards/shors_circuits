@@ -56,7 +56,11 @@ div, nav { @include box-sizing(border-box); }
 
     //#iterationsContainer { margin-left: 5px; }
 
-    #navIterations { margin-left: 10px; }
+    #navIterations {
+      margin-left: 10px;
+      
+      a { font-size: 0.9em; }
+    }
   }
 
   #content {
