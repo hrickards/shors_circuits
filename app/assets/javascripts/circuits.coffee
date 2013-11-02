@@ -511,10 +511,22 @@ init = ->
   # Define last so on top of other layers
   @inspectorsLayer = newLayer(@stage)
 
-  if existingCircuit()
+  if existingSessionCircuit()
+    loadSessionCircuit()
+  else if existingCircuit()
     loadCircuit()
   else
     setupNewCircuit()
+
+  # If user not logged in, save circuit in local storage
+  if $('#usave').length > 0
+    bindSaveLocally()
+
+# Save circuit in local storage
+bindSaveLocally = ->
+  $(window).bind('beforeunload', ->
+    sessionStorage.setItem('circuit', JSON.stringify({circuit:genHash()}))
+  )
 
 # Load operators then run passed function
 bootstrap = (func) ->
@@ -549,6 +561,9 @@ existingCircuit = ->
   parts = window.location.pathname.split(".")[0].split("/")
   return parts[parts.length - 3] == "circuits"
 
+existingSessionCircuit = ->
+  return sessionStorage.getItem('circuit')?
+
 operatorsPath = ->
   splits = window.location.pathname.split("/")
   path = "/operators"
@@ -567,11 +582,22 @@ loadCircuit = ->
     flashMessage("You don't have permission to access that circuit! If this is your circuit, make sure you're logged in.", 'danger')
   )
 
+loadSessionCircuit = ->
+  circuit = JSON.parse(sessionStorage.getItem('circuit'))['circuit']
+  sessionStorage.removeItem('circuit')
+  circuit['can_change_settings'] = true
+  circuit['unsaved'] = true
+  renderCircuit(circuit)
+
 renderCircuit = (circuit) =>
   $('#save').attr('title', 'Update')
   $('#initialState').val(circuit['initial_state'])
 
-  if(circuit['can_change_settings'])
+  if(circuit['unsaved'])
+    setupEditableName('', circuit['name'])
+    setupEditableSwitches('', circuit['world_readable'], circuit['world_editable'])
+    $('#iterations').hide()
+  else if(circuit['can_change_settings'])
     setupEditableName(dataPath('/name'), circuit['name'])
     setupEditableSwitches(dataPath('/switches'), circuit['world_readable'], circuit['world_editable'])
   else
@@ -582,7 +608,6 @@ renderCircuit = (circuit) =>
     $("#save").attr("id", "usave")
     $('#usave').off('click')
     $('#usave').on('click', -> flashMessage("You don't have permission to do that!", 'danger'); return false)
-
 
   @lines.add(circuit['lines'])
   @lines.render(linesLayer)
@@ -603,7 +628,7 @@ renderCircuit = (circuit) =>
   @operators.render(@operatorsLayer)
 
   # Show previous iterations of circuit
-  showIterations(circuit)
+  showIterations(circuit) unless circuit['unsaved']
 
 showIterations = (circuit) ->
   html = ""
