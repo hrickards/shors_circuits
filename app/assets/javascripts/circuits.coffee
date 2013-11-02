@@ -670,7 +670,7 @@ run = ->
 
     showResultsContainer()
   ).error(->
-    flashMessage("Something went wrong when running that circuit. Please make sure you're logged in and try again later.", 'danger')
+    flashMessage("Something went wrong when running that circuit.", 'danger')
   )
 
 resize = ->

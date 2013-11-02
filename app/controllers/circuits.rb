@@ -109,8 +109,6 @@ Quantum::App.controllers :circuits do
 
   # Run the circuit data posted
   post :run, :map => '/circuits/run', :provides => [:json] do
-    require_sign_in_with_error
-
     circuit = JSON.parse(params["circuit"])
 
     # Create new circuit from the posted data, but don't save it
@@ -126,8 +124,6 @@ Quantum::App.controllers :circuits do
 
   # Run an already-saved circuit
   get :run, :map => '/circuits/:c_id/:v_id/run', :provides => [:json] do
-    require_sign_in
-
     @circuit = Circuit.find_by_c_id_and_v_id @c_id, @v_id
     halt 403 unless (signed_in? and @circuit.created_by?(current_user)) or @circuit.world_readable
     @results = @circuit.run
