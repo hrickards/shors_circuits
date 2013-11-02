@@ -27,9 +27,11 @@ module Quantum
       provider :open_id, :store => OpenID::Store::Filesystem.new('/tmp')
     end
 
-    # Rate limiting for running circuits
-    use Rack::Throttle::IntervalRuns, :min => 10.0 # max 1 request per 10 seconds
-    use Rack::Throttle::HourlyRuns, :max => 100 # max 100 requests per hour
+    if Padrino.env == :production
+      # Rate limiting for running circuits
+      use Rack::Throttle::IntervalRuns, :min => 10.0 # max 1 request per 10 seconds
+      use Rack::Throttle::HourlyRuns, :max => 100 # max 100 requests per hour
+    end
 
     ##
     # Caching support
