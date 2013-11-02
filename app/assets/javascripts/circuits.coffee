@@ -152,12 +152,17 @@ removeResults = ->
 
 showMeasurementResults = (oId) ->
   results = @measurementResultsData[oId]
-  keys = _.keys(results)
+  keys = _.filter(_.keys(results), (key) -> key != "expected" and key != "variance")
   labels = _.map(keys, (key) -> key + " wp " + results[key][0])
   values = _.map(keys, (key) -> results[key][1])
 
+  html = "<div>Expected value: " + results['expected'] + "</div>"
+  html += "<div>Variance: " + results['variance'] + "</div>"
+
+  $('#measurementsDataContainer').html(html)
+
   unless @r?
-    cont = $('#measurementsContainer')
+    cont = $('#measurementsChartContainer')
     @r = Raphael(cont.get(0), cont.width(), cont.height())
 
   @r.clear()

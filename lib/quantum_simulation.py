@@ -82,6 +82,7 @@ def parse_ket_string(ket_string, size):
 # e.g. [(0.5,0), (0.5,0), (1, 1), (1, 1), (1, 6)]
 # into probabilities
 # e.g. {0: 0.25, 1: 0.5, 2: 0.25}
+# Also calculates expected value
 def conditional_list_to_probabilities(lis):
     # Calculate a list of all latter-parts of the tuples
     latters = set(map(lambda element: element[1], lis))
@@ -103,15 +104,22 @@ def conditional_list_to_probabilities(lis):
         # Calculate probability as (self sum probabilities)/(total sum prob)
         probabilities[latter] = sum_probabilities[latter]/sum_sum_probabilities
 
-    return probabilities
+    # Calculate expected value & population variance
+    expected = sum(map(lambda (x, p): x*p, probabilities.iteritems()))
+    variance = sum(map(lambda (x, p): p * (x - expected)**2, probabilities.iteritems()))
+
+    return probabilities, expected, variance
 
 # Calls str on all keys
 # Turns a value v to [str(v), float(v)]
-def format_probabilities(h1):
+# Also adds expected value to the hash
+def format_probabilities(h1, expected, variance):
     h2 = {}
     for key in h1.keys():
         v = h1[key].simplify()
         h2[str(key)] = [str(v), float(v)]
+    h2['expected'] = str(expected)
+    h2['variance'] = str(variance)
     return h2
 
 # Given a state tuple (state, probability, ...), nicely format it
@@ -261,7 +269,7 @@ class QuantumSimulation:
             # their probability
             # format_probabilities formats both keys and values appropriately
             self.probabilities[measurement] = format_probabilities(
-                    conditional_list_to_probabilities(outcomes)
+                    *conditional_list_to_probabilities(outcomes)
             )
 
         # Create a new dictionary to store simulation results in
