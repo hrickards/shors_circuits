@@ -129,11 +129,22 @@ inspectOperatorClick = ->
     $.get(operatorDetailPath(operator.operatorId)).done((data) ->
       op = data['operator']
       type = op['type']
+      height = op['size'] * 80
 
       html = "<div><b>Name:</b> " + op['name'] + "</div>"
       html += "<div><b>Size:</b> " + op['size'] + "</div>"
       html += "<div><b>Symbol:</b> " + op['symbol'] + "</div>"
       html += "<div><b>Type:</b> " + type.charAt(0).toUpperCase() + type.slice(1) + "</div>"
+      if type == "controlled"
+        html += "<div><b>Matrix:</b>"
+        _.each(op['matrix'], (datum) ->
+          value = datum[0]
+          matrix = datum[1]
+          html += "<div>" + value + " : <img src='/latex/math/" + matrix + ".png?height=" + height + "'/></div>"
+        )
+        html += "</div>"
+      else
+        html += "<div><b>Matrix:</b> <img src='/latex/math/" + op['matrix'] + ".png?height=" + height + "'/>"
       $("#operatorDetails").html(html)
     )
 

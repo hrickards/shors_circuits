@@ -1,3 +1,4 @@
 object @operator
 
-attributes :name, :size, :symbol, :type, :matrix
+attributes :name, :size, :symbol, :type
+code(:matrix) { @matrix }

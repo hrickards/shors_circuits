@@ -35,6 +35,7 @@ Quantum::App.controllers :operators do
 
   get :show, :map => '/operators/details/:id', :provides => :json do
     @operator = Operator.find params[:id]
+    @matrix = @operator.latex_matrix
 
     render 'operators/show.rabl'
   end

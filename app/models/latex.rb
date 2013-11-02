@@ -99,7 +99,7 @@ class Latex
   # Generate the LaTeX document from the code passed (the code doesn't include
   # the documentclass, etc)
   def document
-    return "\\documentclass{article}\n\\input{Qcircuit}\n\\usepackage[landscape]{geometry}\n\\pagestyle{empty}\n\\begin{document}\n#{@code}\n\\end{document}"
+    return "\\documentclass{article}\n\\input{Qcircuit}\n\\usepackage[landscape]{geometry}\n\\usepackage{amsmath}\n\\pagestyle{empty}\n\\begin{document}\n#{@code}\n\\end{document}"
   end
 
   def self.qcircuit(code, format, width, height)
