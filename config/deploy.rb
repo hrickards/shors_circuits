@@ -2,6 +2,7 @@ set :application, 'shors_circuits'
 set :repo_url, 'git@bitbucket.org:hrickards/shors-circuits.git'
 
 set :deploy_to, "/home/harry/#{fetch(:application)}"
+set :deploy_via, :remote_cache
 set :scm, :git
 
 set :format, :pretty
@@ -34,7 +35,7 @@ namespace :deploy do
 
   after :updated, :compile_assets do
     on roles(:app) do
-      execute "cd #{deploy_to}/current; bundle exec padrino rake assets:compile -e production"
+      execute "cd #{release_path}; bundle exec padrino rake assets:compile -e production"
     end
   end
 end
