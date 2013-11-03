@@ -12,3 +12,4 @@ db/*.db
 config/application.yml
 config/puma.rb
 lib/tasks/user.yml
+public/compiled

@@ -24,8 +24,8 @@ gem 'susy'
 gem 'slim'
 gem 'susy'
 
-# Sprockets (cf asset pipeline)
-gem "padrino-sprockets", "~> 0.0.3"
+# Sprockets (cf asset pipeline) fork to enable precompiling
+gem "padrino-sprockets", github: 'hrickards/padrino-sprockets'
 gem 'sprockets-sass'
 gem 'yui-compressor'
 gem 'uglifier'

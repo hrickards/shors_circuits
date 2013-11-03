@@ -31,9 +31,15 @@ namespace :deploy do
       execute "ln -s #{shared_path}/puma.rb #{release_path}/config/"
     end
   end
+
+  after :updated, :compile_assets do
+    on roles(:app) do
+      execute "cd #{deploy_to}/current; bundle exec padrino rake assets:compile -e production"
+    end
+  end
 end
  
-namespace:data do
+namespace :data do
   desc 'Clear all data & import defaults'
   task :import do
     on roles(:app) do
