@@ -654,6 +654,12 @@ renderCircuit = (circuit) =>
     $('#usave').off('click')
     $('#usave').on('click', -> flashMessage("You don't have permission to do that!", 'danger'); return false)
 
+  unless circuit['unsaved']
+    subject = "Quantum Circuit: " + circuit['name']
+    body = "Take a look at my quantum circuit at " + document.URL.split("#")[0] + "."
+    html = "<a class='btn btn-default' href='mailto:?subject=" + encodeURIComponent(subject) + "&amp;body=" + encodeURIComponent(body) + "' title='Share Circuit'>Share Circuit</a>"
+    $("#shareButton").html(html)
+    
   @lines.add(circuit['lines'])
   @lines.render(linesLayer)
 
