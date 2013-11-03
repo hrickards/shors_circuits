@@ -2,7 +2,7 @@
 # Import code for parsing a matrix into a sympy object
 from quantum_simulation import parse_matrix
 from sympy import latex
-import json, sys, pipes, urllib
+import json, sys, pipes, urllib, re
 
 # If the file's being run, rather than loaded as a library
 if __name__ == "__main__":
@@ -10,7 +10,9 @@ if __name__ == "__main__":
     matrix = parse_matrix(json.loads(sys.argv[1])['matrix'])
 
     # Generate latex for the matix, using the pmatrix matrix env.
-    tex = latex(matrix).replace("smallmatrix", "pmatrix").rpartition("\\right]")[0].partition("\\left[")[2]
+    tex = latex(matrix).replace("smallmatrix", "pmatrix")
+    tex = re.sub(r'\\right[\]\)]$', '', tex)
+    tex = re.sub(r'^\\left[\[\(]', '', tex)
 
     # Print out a JSONified version of the latex for the matrix
     # in a URL encoded version
