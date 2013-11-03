@@ -11,7 +11,8 @@ namespace :deploy do
   desc 'Restart application'
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
-      execute "/etc/init.d/puma restart #{fetch(:application)}"
+      execute "/etc/init.d/puma stop #{fetch(:application)}"
+      execute "/etc/init.d/puma start #{fetch(:application)}"
     end
   end
 
