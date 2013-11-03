@@ -24,6 +24,7 @@ module Quantum
           name: "google"
         }
       provider :github, config["GITHUB_ID"], config["GITHUB_SECRET"]
+      provider :twitter, config["TWITTER_ID"], config["TWITTER_SECRET"]
       provider :open_id, :store => OpenID::Store::Filesystem.new('/tmp')
     end
 

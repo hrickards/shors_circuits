@@ -7,3 +7,6 @@
 <% unless user_authenticated_provider? :open_id %>
   <li><a class="zocial openid" href="#" id="openIdOpen">OpenID</a></li>
 <% end %>
+<% unless user_authenticated_provider? :twitter %>
+  <li><a class="zocial twitter" href="/auth/twitter">Twitter</a></li>
+<% end %>

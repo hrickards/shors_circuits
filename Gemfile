@@ -15,6 +15,7 @@ gem 'redis'                                           # Redis for caching
 gem 'omniauth-google-oauth2'                          # Google
 gem 'omniauth-github'                                 # Github
 gem 'omniauth-openid'                                 # OpenID
+gem 'omniauth-twitter'                                # Twitter
 
 # Templating & CSS
 gem 'compass'
