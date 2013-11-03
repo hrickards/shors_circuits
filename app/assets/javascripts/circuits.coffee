@@ -126,7 +126,7 @@ inspectOperatorClick = ->
   if operator?
     highlightOperator(operator)
     $('#inspectOperatorMessage').hide()
-    $.get(operatorDetailPath(operator.operatorId)).done((data) ->
+    $.getJSON(operatorDetailPath(operator.operatorId)).done((data) ->
       op = data['operator']
       type = op['type']
       height = op['size'] * 80
@@ -575,7 +575,7 @@ bindSaveLocally = ->
 
 # Load operators then run passed function
 bootstrap = (func) ->
-  $.get(operatorsPath()).done((data) ->
+  $.getJSON(operatorsPath()).done((data) ->
     gates = []
     measurements = []
     controlled_gates = []
@@ -621,7 +621,7 @@ dataPath = (infix) ->
   return basePath + infix + ".json"
 
 loadCircuit = ->
-  $.get(dataPath()).done((data) =>
+  $.getJSON(dataPath()).done((data) =>
     renderCircuit(data['circuit'])
   ).error( ->
     flashMessage("You don't have permission to access that circuit! If this is your circuit, make sure you're logged in.", 'danger')
