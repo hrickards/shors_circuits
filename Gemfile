@@ -16,6 +16,7 @@ gem 'omniauth-google-oauth2'                          # Google
 gem 'omniauth-github'                                 # Github
 gem 'omniauth-openid'                                 # OpenID
 gem 'omniauth-twitter'                                # Twitter
+gem 'omniauth-facebook'                               # Facebook
 
 # Templating & CSS
 gem 'compass'

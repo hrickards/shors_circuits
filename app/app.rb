@@ -25,6 +25,7 @@ module Quantum
         }
       provider :github, config["GITHUB_ID"], config["GITHUB_SECRET"]
       provider :twitter, config["TWITTER_ID"], config["TWITTER_SECRET"]
+      provider :facebook, config["FACEBOOK_ID"], config["FACEBOOK_SECRET"]
       provider :open_id, :store => OpenID::Store::Filesystem.new('/tmp')
     end
 
