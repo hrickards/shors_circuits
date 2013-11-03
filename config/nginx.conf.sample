@@ -11,6 +11,13 @@ server {
 	access_log  /var/log/nginx/shor.access.log;
 	root /home/harry/shors_circuits;
 
+  location ~ ^/(compiled)/ {
+    root /home/harry/shors_circuits/current/public;
+    gzip_static on;
+    expires max;
+    add_header Cache-Control public;
+  }
+
 	location / {
 		proxy_pass http://shorscircuits.com;
 		proxy_redirect	off;
