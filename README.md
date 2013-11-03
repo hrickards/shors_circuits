@@ -12,3 +12,4 @@ Requirements
 * pdflatex with QCircuit
 * inkscape (SVG to PNG)
 * Ruby with gems in Gemfile
+* Redis & Mongo

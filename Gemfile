@@ -9,6 +9,7 @@ gem 'omniauth'                                        # Authentication
 gem 'improved-rack-throttle', 
   require: 'rack/throttle', 
   github: 'bensomers/improved-rack-throttle'          # Rate limiting
+gem 'redis'                                           # Redis for caching 
 
 # Omniauth strategies
 gem 'omniauth-google-oauth2'                          # Google

@@ -47,51 +47,12 @@
             <h3 class="panel-title">My Circuits</h3>
           </div>
           <div class="panel-body">
-            <ul>
-              <% @circuits.each do |cid, circuits, modified| %>
-                <li>
-                <a href="<%= url_for(:circuits, :show, :c_id => circuits.last.c_id, :v_id => circuits.last.v_id) %>"><%= circuits.first.name %></a>
-                <ul id="horizontalCircuitIterations">
-                  <% circuits.each do |circuit| %>
-                    <li><a href="<%= url_for(:circuits, :show, :c_id => cid, :v_id => circuit.v_id) %>"><span class="badge"><%= circuit.v_id %></span></a></li>
-                  <% end %>
-                </ul>
-                </li>
-              <% end %>
-              <% if @circuits.empty? %>
-                You don't appear to have any circuits yet! Would you like to <a href="<%= url_for(:circuits, :show) %>">create one</a>?
-              <% end %>
-            </ul>
+            <%= @my_circuits %>
           </div>
         </div>
       </div>
     </div>
   <% else %>
-    <div class="row">
-      <div class="col-sm-6 col-md-3">
-        <a href="<%= demonstration_url("Quantum Teleportation") %>" class="thumbnail thumbnail-center">
-          <img src="/images/circuits/qt.png" alt="Quantum Teleportation Circuit">
-          <b>Quantum Teleportation</b>
-        </a>
-      </div>
-      <div class="col-sm-6 col-md-3">
-        <a href="<%= demonstration_url("Bell States") %>" class="thumbnail thumbnail-center">
-          <img src="/images/circuits/bell.png" alt="Bell States">
-          <b>Bell States</b>
-        </a>
-      </div>
-      <div class="col-sm-6 col-md-3">
-        <a href="<%= demonstration_url("Pauli Gates") %>" class="thumbnail thumbnail-center">
-          <img src="/images/circuits/pauli.png" alt="Pauli Gates">
-          <b>Pauli Gates</b>
-        </a>
-      </div>
-      <div class="col-sm-6 col-md-3">
-        <a href="<%= demonstration_url("Measurement") %>" class="thumbnail thumbnail-center">
-          <img src="/images/circuits/measurement.png" alt="Measurement">
-          <b>Measurement</b>
-        </a>
-      </div>
-    </div>
+    <%= @examples %>
   <% end %>
 </div>

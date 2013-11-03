@@ -8,6 +8,10 @@ Quantum::App.helpers do
     signed_in? and User.find_by_uid session[:uid]
   end
 
+  def current_uid
+    signed_in? and current_user.uid
+  end
+
   def require_sign_in
     unless signed_in?
       flash[:error] = "You need to be signed in to do that!"

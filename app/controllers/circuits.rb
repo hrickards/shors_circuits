@@ -1,3 +1,5 @@
+require 'digest/md5'
+
 Quantum::App.controllers :circuits do
   before do
     # Get c_id and v_id from url parameters, setting nil if they don't exist
@@ -11,7 +13,10 @@ Quantum::App.controllers :circuits do
   get :index, :map => '/my_circuits', :provides => :html do
     redirect_to url_for(:circuits, :show) unless signed_in?
 
-    @circuits = current_user.grouped_circuits(5)
+    @my_circuits = cache("mycircuits_circuits_for_#{current_uid}") do
+      @circuits = current_user.grouped_circuits(5)
+      partial 'circuits/list'
+    end
     render 'circuits/index.erb'
   end
 
@@ -48,6 +53,8 @@ Quantum::App.controllers :circuits do
     halt 400 unless params["name"] == "circuitName"
 
     @circuit.change_name params["value"]
+    expire("homepage_circuits_for_#{@circuit.uid}")
+    expire("mycircuits_circuits_for_#{@circuit.uid}")
 
     {'status' => 'successful'}.to_json
   end
@@ -101,6 +108,9 @@ Quantum::App.controllers :circuits do
       @circuit.change_world_editable circuit['world_editable']
     end
 
+    expire("homepage_circuits_for_#{@circuit.uid}")
+    expire("mycircuits_circuits_for_#{@circuit.uid}")
+
     {
       'status' => 'successful',
       'url' => url_for(:circuits, :show, :c_id => @c_id, :v_id => @circuit.v_id)
@@ -110,24 +120,30 @@ Quantum::App.controllers :circuits do
   # Run the circuit data posted
   post :run, :map => '/circuits/run', :provides => [:json] do
     circuit = JSON.parse(params["circuit"])
+    circuit_hash = Digest::MD5.hexdigest(params["circuit"])
 
-    # Create new circuit from the posted data, but don't save it
-    @circuit = Circuit.new
-    @circuit.operators = circuit["operators"]
-    @circuit.lines = circuit["lines"]
-    @circuit.initial_state = circuit["initial_state"]
+    cache("circuit_results_#{circuit_hash}") do
+      # Create new circuit from the posted data, but don't save it
+      @circuit = Circuit.new
+      @circuit.operators = circuit["operators"]
+      @circuit.lines = circuit["lines"]
+      @circuit.initial_state = circuit["initial_state"]
 
-    @results = @circuit.run
+      @results = @circuit.run
 
-    @results.to_json
+      @results.to_json
+    end
   end
 
   # Run an already-saved circuit
   get :run, :map => '/circuits/:c_id/:v_id/run', :provides => [:json] do
     @circuit = Circuit.find_by_c_id_and_v_id @c_id, @v_id
     halt 403 unless (signed_in? and @circuit.created_by?(current_user)) or @circuit.world_readable
-    @results = @circuit.run
 
-    @results.to_json
+    cache("circuit_stored_results_#{@c_id}_#{@v_id}") do
+      @results = @circuit.run
+
+      @results.to_json
+    end
   end
 end

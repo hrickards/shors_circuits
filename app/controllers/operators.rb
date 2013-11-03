@@ -1,5 +1,8 @@
 Quantum::App.controllers :operators do
-  get :index, :map => '/operators(/:c_id)', :provides => :json do
+  get :index, :map => '/operators(/:c_id)', :provides => :json, :cache => true do
+    expires_in 15
+    cache_key request.path_info + "?" + {"c_id" => params[:c_id], "uid" => session[:uid]}.to_param
+
     # Default operators
     operators_default = Operator.find_all_by_default true
 
@@ -35,7 +38,10 @@ Quantum::App.controllers :operators do
 
   get :show, :map => '/operators/details/:id', :provides => :json do
     @operator = Operator.find params[:id]
-    @matrix = @operator.latex_matrix
+    jmatrix = cache("matrix_for_operator_#{params[:id]}", :expires_in => 3600) do
+      JSON.generate @operator.latex_matrix, quirks_mode: true
+    end
+    @matrix = JSON.parse(jmatrix, quirks_mode: true)
 
     render 'operators/show.rabl'
   end
