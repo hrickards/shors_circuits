@@ -1,0 +1,56 @@
+# Copied from http://ariejan.net/2011/09/14/lighting-fast-zero-downtime-deployments-with-git-capistrano-nginx-and-unicorn/
+
+# Set environment to development unless something else is specified
+env = ENV["PADRINO_ENV"] || "development"
+
+worker_processes 4
+
+# listen on both a Unix domain socket and a TCP port,
+# we use a shorter backlog for quicker failover when busy
+listen "/tmp/shor.socket", :backlog => 64
+
+# Preload our app for mode speed
+preload_app true
+
+pid "/tmp/unicorn.shor.pid"
+
+# Production specific settings
+if env == "production"
+  # Help ensure your application will always spawn in the symlinked
+  # "current" directory that Capistrano sets up.
+  working_directory "/home/deployer/apps/shor/current"
+
+  # feel free to point this anywhere accessible on the filesystem
+  user 'deployer', 'deployer'
+  shared_path = "/home/deployer/apps/shor/shared"
+
+  stderr_path "#{shared_path}/log/unicorn.stderr.log"
+  stdout_path "#{shared_path}/log/unicorn.stdout.log"
+end
+
+before_fork do |server, worker|
+  # no need for master process to hold a connection
+  MongoMapper.database.connection.close
+
+  # see redis repo
+  Redis.current.quit
+
+  # Before forking, kill the master process that belongs to the .oldbin PID.
+  # This enables 0 downtime deploys.
+  old_pid = "/tmp/unicorn.shor.pid.oldbin"
+  if File.exists?(old_pid) && server.pid != old_pid
+    begin
+      Process.kill("QUIT", File.read(old_pid).to_i)
+    rescue Errno::ENOENT, Errno::ESRCH
+      # someone else did our job for us
+    end
+  end
+end
+
+after_fork do |server, worker|
+  # establish db connection
+  MongoMapper.database.connection.connect_to_master
+
+  # see redis repo
+  Redis.current.quit
+end

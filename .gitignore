@@ -10,6 +10,6 @@ db/*.db
 .*.sw*
 *.pyc
 config/application.yml
-config/puma.rb
+config/unicorn.rb
 lib/tasks/user.yml
 public/compiled

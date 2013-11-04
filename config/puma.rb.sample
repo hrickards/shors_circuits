@@ -1,7 +1,0 @@
-bind "unix:///home/harry/shors_circuits/current/tmp/puma/sock"
-pidfile "/home/harry/shors_circuits/current/tmp/puma/pid"
-state_path "/home/harry/shors_circuits/current/tmp/puma/state"
-
-activate_control_app
-
-environment "production"
