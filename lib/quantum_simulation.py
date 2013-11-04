@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # Import the necessary libraries. Main one is sympy, which does all the
 # heavy lifting.
-from sympy import Matrix, eye, sqrt, latex, I
+from sympy import Matrix, eye, sqrt, latex, I, sympify
 from sympy.physics.quantum import TensorProduct
 from numpy import binary_repr
 from sympy.parsing.sympy_parser import parse_expr
@@ -75,8 +75,22 @@ def parse_ket_string(ket_string, size):
     if all(map(lambda val: val == 0, state_array)):
         state_array[0] = 1
 
-    # Return the state_array in vector form
-    return Matrix(state_array)
+    # Return the state_array in vector form, and normalise it (the user
+    # should have given a normalised state, but we'll do so just in case)
+    return normalise_vector(Matrix(state_array))
+
+# Normalise a vector by dividing by it's norm
+# This seems like something that is probably already in sympy, but buried
+# somewhere with a different name
+def normalise_vector(vec):
+    return vec/vec.norm()
+
+# 'Normalise' a nxn square matrix by diving by the nth root of the absolute
+# value of it's det to give
+# a matrix with det 1
+def normalise_matrix(mat):
+    factor = 1/sympify(mat.norm())**(1/sympify(mat.rows))
+    return mat * factor
 
 # Turn a list
 # e.g. [(0.5,0), (0.5,0), (1, 1), (1, 1), (1, 6)]
@@ -196,6 +210,19 @@ class Operator:
         self.matrix = parse_matrix(data['matrix'])
         self.id = data['id']
 
+        # If the operator requires a unitary matrix, then normalise the
+        # matrix (unitary => det = 1, although not converse)
+        if self.unitary: self.matrix = normalise_matrix(self.matrix)
+
+# Class representing a gate. All gate matrices must be unitary.
+class Gate(Operator):
+    unitary = True
+
+# Class representing a measurement. All measurement matrices must be hermitian,
+# but not necessarily unitary.
+class Measurement(Operator):
+    unitary = False
+
 # Class representing a controlled gate --- a specific type of operator
 class Controlled(Operator):
     # Create a new instance by parsing the passed data
@@ -209,7 +236,8 @@ class Controlled(Operator):
         for (value, matrix) in data['matrices'].iteritems():
             # Parse both, and store in self.matrices
             value = custom_parse_expr(value)
-            matrix = parse_matrix(matrix)
+            # Normalise the matrix, because a unitary matrix is required
+            matrix = normalise_matrix(parse_matrix(matrix))
             self.matrices[value] = matrix
 
 
@@ -225,8 +253,8 @@ class QuantumSimulation:
         # Save everything for later, parsing the operator lists and
         # input register
         self.register_size = options['register_size']
-        self.gates = map(Operator, options['gates'])
-        self.measurements = map(Operator, options['measurements'])
+        self.gates = map(Gate, options['gates'])
+        self.measurements = map(Measurement, options['measurements'])
         self.controlled_gates = map(Controlled, options['controlled_gates'])
         self.circuit = options['circuit']
         self.input_register = parse_ket_string(
