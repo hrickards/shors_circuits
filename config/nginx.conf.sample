@@ -3,7 +3,7 @@ upstream shor {
 }
 
 server {
-  listen      80 default;
+  listen      80;
   server_name shorscircuits.com;
 
   root        /home/deployer/apps/shors_circuits/current/public;
@@ -51,7 +51,6 @@ server {
 }
 
 server {
-  listen      80;
-  server_name www.shorscircuits.com;
+  listen      80 default;
   return      301 http://shorscircuits.com$request_uri;
 }
