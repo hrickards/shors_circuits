@@ -10,10 +10,11 @@ To try out, run
 
 Requirements
 ------------
-* Python 2.7 with sympy
-* pdf2svg
+(Package names given are for Debian wheezy)
+* Python 2.7 with sympy (`python2.7` and `python-sympy`)
+* pdf2svg (`pdf2svg`)
 * pdfcrop (`texlive-extra-utils`)
-* pdflatex with QCircuit
-* inkscape (SVG to PNG)
+* pdflatex with QCircuit (install `texlive` and `texlive-pictures`, and create `/etc/texmf/tex/plain` and put `Qcircuit.tex` in it)
+* inkscape (SVG to PNG) (`inkscape`)
 * Ruby with gems in Gemfile
 * Redis & Mongo

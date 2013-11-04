@@ -1,31 +1,57 @@
-upstream shorscircuits.com {
-	server unix:///home/harry/shors_circuits/current/tmp/puma/sock fail_timeout=0;
+upstream shor {
+  server unix:/tmp/shor.socket fail_timeout=0;
 }
 
 server {
+  listen      80 default;
+  server_name shorscircuits.com;
 
-	listen   80; ## listen for ipv4
+  root        /home/deployer/apps/shors_circuits/current/public;
+  access_log  /var/log/nginx/shor_access.log;
+  rewrite_log on;
 
-	server_name  shorscircuits.com;
+  location / {
+    proxy_pass      http://shor;
+    proxy_redirect  off;
 
-	access_log  /var/log/nginx/shor.access.log;
-	root /home/harry/shors_circuits;
+    proxy_set_header  Host            $host;
+    proxy_set_header  X-Real-IP       $remote_addr;
+    proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
 
-  location ~ ^/(compiled)/ {
-    root /home/harry/shors_circuits/current/public;
-    gzip_static on;
-    expires max;
-    add_header Cache-Control public;
+    client_max_body_size    10m;
+    client_body_buffer_size 128k;
+
+    proxy_connect_timeout 90;
+    proxy_send_timeout    90;
+    proxy_read_timeout    90;
+
+    proxy_buffer_size           4k;
+    proxy_buffers               4 32k;
+    proxy_busy_buffers_size     64k;
+    proxy_temp_file_write_size  64k;
   }
 
-	location / {
-		proxy_pass http://shorscircuits.com;
-		proxy_redirect	off;
-	}
+  location = /favicon.ico {
+    root        /home/deployer/apps/shors_circuits/current/public;
+    expires     max;
+    add_header  Cache-Control public;
+  }
+
+  location ~ ^/(images|fonts)/ {
+    root        /home/deployer/apps/shors_circuits/current/public;
+    expires     max;
+    add_header  Cache-Control public;
+  }
+
+  location ~ ^/(compiled)/ {
+    root        /home/deployer/apps/shors_circuits/current/public;
+    expires     max;
+    gzip_static on;
+  }
 }
 
 server {
-	listen 80;
-	server_name www.shorscircuits.com;
-	return	301 http://shorscircuits.com$request_uri;
+  listen      80;
+  server_name www.shorscircuits.com;
+  return      301 http://shorscircuits.com$request_uri;
 }

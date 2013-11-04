@@ -28,8 +28,16 @@ default_run_options[:pty] = true
 ssh_options[:forward_agent] = true
 
 namespace :deploy do
-  desc "Deploy your application"
+  desc "Deploy application"
   task :default do
+    update
+    # Precompile assets
+    precompile
+    restart
+  end
+
+  desc "Deploy application without reprecompiling assets"
+  task :quick do
     update
     restart
   end
@@ -85,8 +93,10 @@ namespace :deploy do
 
     # symlink folders
     symlink
+  end
 
-    # precompile assets
+  desc "precompile assets"
+  task :precompile, :except => { :no_release => true } do
     rake "assets:compile"
   end
 
@@ -95,8 +105,9 @@ namespace :deploy do
     # mkdir -p is making sure that the directories are there for some SCM's that don't
     # save empty folders
     run <<-CMD
-      mkdir -p #{latest_release}/public/compiled &&
       mkdir -p #{latest_release}/tmp &&
+      mkdir -p #{shared_path}/compiled &&
+      ln -sf #{shared_path}/compiled #{latest_release}/public/compiled && 
       ln -sf #{shared_path}/application.yml #{latest_release}/config/application.yml &&
       ln -sf #{shared_path}/user.yml #{latest_release}/lib/tasks/ &&
       ln -sf #{shared_path}/unicorn.rb #{latest_release}/config/unicorn.rb
@@ -110,7 +121,7 @@ namespace :deploy do
 
   desc "Start unicorn"
   task :start, :except => { :no_release => true } do
-    run "cd #{current_path} ; bundle exec unicorn_rails -c config/unicorn.rb -D"
+    run "cd #{current_path} ; bundle exec unicorn -c #{current_path}/config/unicorn.rb -D"
   end
 
   desc "Stop unicorn"
