@@ -202,6 +202,31 @@ def format_state_latex(state, size):
     # Format to be URL-ready
     return urllib.quote(state_string)
 
+# The error class we'll be using if matrices should be e.g. unitary and
+# they're not
+class InvalidMatrix(Exception):
+    # Store the matrix in question, as well as the type it should be
+    def __init__(self, matrix, mtype):
+        self.matrix = matrix
+        self.mtype = mtype
+    def __str__(self):
+        return "Invalid matrix %s: not %s" % (repr(self.matrix), repr(self.mtype))
+
+# Assert that a matrix is unitary (ie U*U=I)
+def assert_unitary(mat):
+    # Normalise the matrix before checking if it's unitary
+    nmat = normalise_matrix(mat)
+    unitary = (nmat * nmat.H) == eye(nmat.rows)
+    # But return the original matrix in any error messages
+    if not unitary: raise InvalidMatrix(mat, "unitary")
+    return nmat
+
+# Assert that a matrix is hermitian (ie U=U*)
+def assert_hermitian(mat):
+    hermitian = mat == mat.H
+    if not hermitian: raise InvalidMatrix(mat, "hermitian")
+    return mat
+
 # Class representing an operator
 class Operator:
     # Create a new instance by parsing the passed data
@@ -210,18 +235,24 @@ class Operator:
         self.matrix = parse_matrix(data['matrix'])
         self.id = data['id']
 
-        # If the operator requires a unitary matrix, then normalise the
-        # matrix (unitary => det = 1, although not converse)
-        if self.unitary: self.matrix = normalise_matrix(self.matrix)
+        # If the operator requires a matrix of a specific type, check
+        # it is (and if the matrix is unitary apart from a normalisation
+        # factor, divide by that factor)
+        if self.unitary: self.matrix = assert_unitary(self.matrix)
+        if self.hermitian: self.matrix = assert_hermitian(self.matrix)
 
-# Class representing a gate. All gate matrices must be unitary.
+
+# Class representing a gate. All gate matrices must be unitary, but not
+# necessarily hermitian.
 class Gate(Operator):
     unitary = True
+    hermitian = False
 
 # Class representing a measurement. All measurement matrices must be hermitian,
 # but not necessarily unitary.
 class Measurement(Operator):
     unitary = False
+    hermitian = True
 
 # Class representing a controlled gate --- a specific type of operator
 class Controlled(Operator):
@@ -236,10 +267,10 @@ class Controlled(Operator):
         for (value, matrix) in data['matrices'].iteritems():
             # Parse both, and store in self.matrices
             value = custom_parse_expr(value)
-            # Normalise the matrix, because a unitary matrix is required
-            matrix = normalise_matrix(parse_matrix(matrix))
+            # Check the matrix is unitary, and normalise the matrix if that
+            # will make it unitary
+            matrix = assert_unitary(matrix)
             self.matrices[value] = matrix
-
 
 # Class representing a simulation
 class QuantumSimulation:
@@ -487,13 +518,26 @@ if __name__ == "__main__":
     # input_register need to be in data
     data = json.loads(sys.argv[1])
 
-    # Initialize a new simulation using this data
-    sim = QuantumSimulation(data)
-    # Run the simulation
-    sim.simulate()
+    try:
+        # Initialize a new simulation using this data
+        sim = QuantumSimulation(data)
+        # Run the simulation
+        sim.simulate()
 
-    # Print out a JSONified version of the results
-    print pipes.quote(json.dumps({
-        'results': sim.results,
-        'probabilities': sim.probabilities
-    }))
+        # Print out a JSONified version of the results
+        print pipes.quote(json.dumps({
+            'results': sim.results,
+            'probabilities': sim.probabilities
+        }))
+    except InvalidMatrix, e:
+        # If some of the matrices weren't unitary when they were meant to be,
+        # or weren't hermitian when they were meant to be then return an
+        # error back to ruby
+        print pipes.quote(json.dumps({
+            'error': {
+                'type': 'invalid_matrix',
+                'matrix': urllib.quote(latex(e.matrix)),
+                'size': e.matrix.rows,
+                'mtype': e.mtype
+            }
+        }))

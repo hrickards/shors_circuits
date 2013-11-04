@@ -760,10 +760,15 @@ setupResultsContainer = ->
 run = ->
   # TODO Is this RESTul?
   $.post('/circuits/run', {circuit: JSON.stringify(genHash())}).done((data) =>
-    @resultsData = data['results']
-    @measurementResultsData = data['probabilities']
+    if 'error' of data
+      error = data['error']
+      height = error['size'] * 40
+      flashMessage("Unfortunately we couldn't run that circuit. Your matrix <img src='/latex/math/" + error['matrix'] + ".png?height=" + height + "'/> should have been " + error['mtype'] + " but wasn't. Please fix the problem and try again.", 'danger')
+    else
+      @resultsData = data['results']
+      @measurementResultsData = data['probabilities']
 
-    showResultsContainer()
+      showResultsContainer()
   ).error(->
     flashMessage("Something went wrong when running that circuit.", 'danger')
   )
