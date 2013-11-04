@@ -13,7 +13,7 @@ Quantum::App.controllers :auth do
       humanised = omniauth["provider"] == :open_id ? "Open ID" : omniauth["provider"].capitalize
       flash[:notice] =
         "You can now login using #{humanised}."
-      redirect_to request.env['omniauth.origin'] || url_for(:pages, :home)
+      redirect_to parse_redirect(request.env['omniauth.origin'] || url_for(:pages, :home))
     else
       # Otherwise find existing user or create one if one doesn't exist
       @user = User.find_or_create omniauth
@@ -23,7 +23,7 @@ Quantum::App.controllers :auth do
 
       # Redirect to home
       flash[:notice] = "Successfully logged in."
-      redirect_to request.env['omniauth.origin'] || url_for(:pages, :home)
+      redirect_to parse_redirect(request.env['omniauth.origin'] || url_for(:pages, :home))
     end
 
     # Create new user from ommiauth info if one doesn't exist

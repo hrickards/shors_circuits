@@ -556,10 +556,10 @@ init = ->
   # Define last so on top of other layers
   @inspectorsLayer = newLayer(@stage)
 
-  if existingSessionCircuit()
-    loadSessionCircuit()
-  else if existingCircuit()
+  if existingCircuit()
     loadCircuit()
+  else if existingSessionCircuit()
+    loadSessionCircuit()
   else
     setupNewCircuit()
 
@@ -570,7 +570,9 @@ init = ->
 # Save circuit in local storage
 bindSaveLocally = ->
   $(window).bind('beforeunload', ->
-    sessionStorage.setItem('circuit', JSON.stringify({circuit:genHash()}))
+    circuit = genHash()
+    circuit['name'] = circuit['name'] + " (copy)" if existingCircuit()
+    sessionStorage.setItem('circuit', JSON.stringify({circuit:circuit}))
   )
 
 # Load operators then run passed function
