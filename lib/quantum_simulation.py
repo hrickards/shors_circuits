@@ -269,7 +269,7 @@ class Controlled(Operator):
             value = custom_parse_expr(value)
             # Check the matrix is unitary, and normalise the matrix if that
             # will make it unitary
-            matrix = assert_unitary(matrix)
+            matrix = assert_unitary(parse_matrix(matrix))
             self.matrices[value] = matrix
 
 # Class representing a simulation
