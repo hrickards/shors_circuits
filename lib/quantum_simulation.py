@@ -86,10 +86,10 @@ def normalise_vector(vec):
     return vec/vec.norm()
 
 # 'Normalise' a nxn square matrix by diving by the nth root of the absolute
-# value of it's det to give
-# a matrix with det 1
+# value of it's det to give a matrix with det 1
+# det(cA) = c^n det(A) = 1 => c = nth root of 1/det(A)
 def normalise_matrix(mat):
-    factor = 1/sympify(mat.norm())**(1/sympify(mat.rows))
+    factor = 1/sympify(abs(mat.det()))**(1/sympify(mat.rows))
     return mat * factor
 
 # Turn a list
@@ -216,6 +216,7 @@ class InvalidMatrix(Exception):
 def assert_unitary(mat):
     # Normalise the matrix before checking if it's unitary
     nmat = normalise_matrix(mat)
+ 
     unitary = (nmat * nmat.H) == eye(nmat.rows)
     # But return the original matrix in any error messages
     if not unitary: raise InvalidMatrix(mat, "unitary")
